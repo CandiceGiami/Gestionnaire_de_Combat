@@ -1,14 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getHeroById } from './services/superheroAPI';
+import NavBar from './components/NavBar.vue';
 
 const hero = ref(null);
 
 onMounted(async () => {
   try {
-    // ID de test (par exemple, 1 pour récupérer le premier héros)
     hero.value = await getHeroById(1);
-    console.log(hero.value); // Vérifiez les données dans la console
   } catch (error) {
     console.error("Erreur lors du chargement du héros :", error);
   }
@@ -16,6 +15,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <NavBar/>
   <div>
     <h1>Superhero Battle</h1>
     <div v-if="hero">
