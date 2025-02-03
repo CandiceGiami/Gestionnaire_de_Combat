@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { getHeroById } from './services/superheroAPI';
 import NavBar from './components/NavBar.vue';
+import HeroList from './components/HeroList.vue';
 
 const hero = ref(null);
 
@@ -25,8 +26,8 @@ onMounted(async () => {
       <p><strong>Force :</strong> {{ hero.powerstats.strength }}</p>
       <p><strong>Vitesse :</strong> {{ hero.powerstats.speed }}</p>
     </div>
-    <p v-else>Chargement...</p>
   </div>
+  <HeroList/>
 </template>
 
 <style scoped>
