@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = '/api'; // Utilisation du proxy défini dans vite.config.js
+const API_URL = '/api'; 
 
 export const getHeroById = async (id) => {
   try {

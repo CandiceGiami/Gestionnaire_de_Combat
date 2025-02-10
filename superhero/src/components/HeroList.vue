@@ -1,76 +1,40 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useHeroStore } from '@/stores/HeroStore'
+
+const heroStore = useHeroStore()
+const searchQuery = ref('')
+
+// Fonction pour rechercher des héros
+const search = () => {
+  if (searchQuery.value.trim()) {
+    heroStore.searchHeroes(searchQuery.value)
+  }
+}
+
+// Réinitialise les données au montage du composant
+onMounted(() => {
+  heroStore.clearHeroes()
+})
+</script>
+
 <template>
-    <div class="hero-list">
-      <!-- Barre de recherche -->
-      <input v-model="searchQuery" type="text" placeholder="Rechercher un héros..." class="search-bar" />
-      
-      <!-- Filtres -->
-      <select v-model="selectedFilter" class="filter-dropdown">
-        <option value="all">Tous</option>
-        <option value="strength">Force</option>
-        <option value="speed">Vitesse</option>
-        <option value="intelligence">Intelligence</option>
-      </select>
-      
-      <!-- Liste des héros -->
-      <div class="hero-grid">
-        <div v-for="hero in filteredHeroes" :key="hero.id" class="hero-card">
-          <img :src="hero.image.url" :alt="hero.name" class="hero-image" />
-          <h3>{{ hero.name }}</h3>
-          <button @click="showHeroDetails(hero)" class="info-btn">ℹ️</button>
-        </div>
-      </div>
-  
-      <!-- Pop-up d'information -->
-      <div v-if="selectedHero" class="popup-overlay" @click="selectedHero = null">
-        <div class="popup-content" @click.stop>
-          <h2>{{ selectedHero.name }}</h2>
-          <img :src="selectedHero.image.url" :alt="selectedHero.name" class="hero-popup-image" />
-          <p><strong>Force:</strong> {{ selectedHero.powerstats.strength }}</p>
-          <p><strong>Vitesse:</strong> {{ selectedHero.powerstats.speed }}</p>
-          <p><strong>Intelligence:</strong> {{ selectedHero.powerstats.intelligence }}</p>
-          <button @click="selectedHero = null" class="close-btn">Fermer</button>
-        </div>
-      </div>
-    </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  export default {
-    data() {
-      return {
-        heroes: [],
-        searchQuery: '',
-        selectedFilter: 'all',
-        selectedHero: null
-      };
-    },
-    computed: {
-      filteredHeroes() {
-        return this.heroes.filter(hero => 
-          hero.name.toLowerCase().includes(this.searchQuery.toLowerCase()) &&
-          (this.selectedFilter === 'all' || hero.powerstats[this.selectedFilter] > 50)
-        );
-      }
-    },
-    methods: {
-      async fetchHeroes() {
-        try {
-          const response = await axios.get('https://superheroapi.com/api/YOUR_API_KEY/search/a');
-          this.heroes = response.data.results;
-        } catch (error) {
-          console.error('Erreur lors du chargement des héros:', error);
-        }
-      },
-      showHeroDetails(hero) {
-        this.selectedHero = hero;
-      }
-    },
-    mounted() {
-      this.fetchHeroes();
-    }
-  };
-  </script>
+  <div>
+    <h1>Liste des héros</h1>
+    <input v-model="searchQuery" placeholder="Rechercher un héros" />
+    <button @click="search">Rechercher</button>
+
+    <div v-if="heroStore.loading">Chargement...</div>
+    <div v-if="heroStore.error">{{ heroStore.error }}</div>
+
+    <ul v-if="heroStore.heroes.length">
+      <li v-for="hero in heroStore.heroes" :key="hero.id">
+        {{ hero.name }}
+      </li>
+    </ul>
+  </div>
+</template>
+
   
   <style>
   .hero-list {
