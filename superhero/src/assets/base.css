@@ -84,3 +84,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+button {
+  font-family: 'Impact', sans-serif; /* Assurer que les boutons utilisent la même police */
+  /* Rendre le texte des boutons en gras */
+  font-size: 15px; /* Utiliser la même taille de police que le corps du texte */
+  text-transform: uppercase; /* Optionnel, pour donner un effet de lettres capitales */
+}

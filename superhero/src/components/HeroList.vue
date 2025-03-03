@@ -1,16 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import {  onMounted } from 'vue'
 import { useHeroStore } from '@/stores/HeroStore'
 
 const heroStore = useHeroStore()
-const searchQuery = ref('')
+
 
 // Fonction pour rechercher des héros
-const search = () => {
-  if (searchQuery.value.trim()) {
-    heroStore.searchHeroes(searchQuery.value)
-  }
-}
 
 // Réinitialise les données au montage du composant
 onMounted(() => {
@@ -18,22 +13,7 @@ onMounted(() => {
 })
 </script>
 
-<template>
-  <div>
-    <h1>Liste des héros</h1>
-    <input v-model="searchQuery" placeholder="Rechercher un héros" />
-    <button @click="search">Rechercher</button>
 
-    <div v-if="heroStore.loading">Chargement...</div>
-    <div v-if="heroStore.error">{{ heroStore.error }}</div>
-
-    <ul v-if="heroStore.heroes.length">
-      <li v-for="hero in heroStore.heroes" :key="hero.id">
-        {{ hero.name }}
-      </li>
-    </ul>
-  </div>
-</template>
 
   
   <style>

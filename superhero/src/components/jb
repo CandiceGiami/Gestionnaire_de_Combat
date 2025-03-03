@@ -1,0 +1,116 @@
+<template>
+    <div 
+      class="hero-card"
+      @mouseenter="isHovered = true" 
+      @mouseleave="isHovered = false"
+    >
+      
+      
+      <!-- Détails affichés au hover -->
+      <div v-if="isHovered" class="hero-details">
+        <div class="stat">
+          <span>Intelligence:</span>
+          <div class="bar">
+            <div class="progress" :style="{ width: hero.powerstats.intelligence + '%' }"></div>
+          </div>
+        </div>
+        <div class="stat">
+          <span>Strength:</span>
+          <div class="bar">
+            <div class="progress" :style="{ width: hero.powerstats.strength + '%' }"></div>
+          </div>
+        </div>
+        <div class="stat">
+          <span>Speed:</span>
+          <div class="bar">
+            <div class="progress" :style="{ width: hero.powerstats.speed + '%' }"></div>
+          </div>
+        </div>
+        <div class="stat">
+          <span>Durability:</span>
+          <div class="bar">
+            <div class="progress" :style="{ width: hero.powerstats.durability + '%' }"></div>
+          </div>
+        </div>
+        <div class="stat">
+          <span>Power:</span>
+          <div class="bar">
+            <div class="progress" :style="{ width: hero.powerstats.power + '%' }"></div>
+          </div>
+        </div>
+      </div>
+  
+      <p>{{ hero.name }}</p>
+    </div>
+  </template>
+  
+  <script>
+  import { ref } from 'vue';
+  
+  export default {
+    props: {
+      hero: Object
+    },
+    setup() {
+      const isHovered = ref(false);
+      return { isHovered };
+    }
+  }
+  </script>
+  
+  <style scoped>
+  .hero-card {
+    position: relative;
+    width: 200px;
+    transition: transform 0.3s ease-in-out;
+    padding: 10px;
+    background: #1e1e1e;
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    overflow: hidden;
+  }
+  
+  .hero-card:hover {
+    transform: scale(1.1);
+  }
+  
+  .hero-details {
+    padding: 10px;
+
+    border-radius: 5px;
+    margin: 5px 0;
+  }
+  
+  .stat {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+  }
+  
+  .stat span {
+    flex: 1;
+    font-size: 14px;
+  }
+  
+  .bar {
+    flex: 3;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .progress {
+    height: 100%;
+    background: #ffcc00;
+    transition: width 0.5s ease-in-out;
+  }
+  </style>
+   .hero-card {
+    display: none; /* Cache complètement l'élément */
+  }
+  
+  .hero-card:hover  .hero-card {
+    display: block; /* Affiche leas détails seulement au hover */
+  }
