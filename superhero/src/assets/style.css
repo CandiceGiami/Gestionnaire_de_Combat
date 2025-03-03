@@ -1,13 +1,14 @@
 body {
-    font-family: Impact, sans-serif; /* Police d'écriture */
-    background-image: url('./background.png'); /* Image en repeat */
-    background-repeat: repeat; /* Répétition */
-    background-size: auto; /* Taille automatique */
-    background-position: top left; /* Alignement */
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-  }
-  
+  font-family: Impact, sans-serif;
+  background: linear-gradient(to right, #c51d1d, #1414c7ba); /* Dégradé de rouge à bleu */
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Fixe le fond pour éviter qu'il ne bouge */
+  background-size: cover; /* Remplit tout l'écran */
+  width: 100vw;
+  min-height: 100vh;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}

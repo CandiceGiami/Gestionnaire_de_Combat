@@ -1,5 +1,6 @@
 <template>
   <FightScene v-if="battleStarted" :player1="selectedPlayer1" :player2="selectedPlayer2" />
+  <button class="fight-btn" :disabled="!canFight" @click="startFight">FIGHT!</button>
   <div class="hero-selection">
     <div class="player player-1">
       <div class="controls">
@@ -36,10 +37,7 @@
         />
       </div>
     </div>
-    
-    <button class="fight-btn" :disabled="!canFight" @click="startFight">FIGHT!</button>
-
-    
+     
   </div>
 </template>
 
@@ -82,14 +80,14 @@ export default {
 </script>
 <style scoped>
 .hero-selection {
-  position: fixed;
-  bottom: 0;
+  position: absolute; /* Remplace fixed par absolute */
+  top: 78%; /* Place la liste au milieu de la page */
   left: 0;
   width: 100%;
   height: 50%;
-  background: rgba(0, 0, 50, 0.7);
   display: flex;
   justify-content: space-between;
+  transform: translateY(-50%); /* Ajuste pour bien centrer */
 }
 
 .player {
@@ -227,6 +225,7 @@ export default {
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.3s, transform 0.3s;
+  z-index: 1000;
 }
 
 .fight-btn:hover:enabled {

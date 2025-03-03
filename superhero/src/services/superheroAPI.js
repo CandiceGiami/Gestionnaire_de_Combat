@@ -14,6 +14,7 @@ export const getHeroById = async (id) => {
 
 export const searchHeroes = async (query) => {
   try {
+    console.log(API_URL)
     const response = await axios.get(`${API_URL}/search/${query}`);
     return response.data.results;
   } catch (error) {
