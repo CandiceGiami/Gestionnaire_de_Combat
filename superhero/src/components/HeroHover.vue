@@ -1,64 +1,39 @@
 <template>
-    <div class="hero-card">
-      <!-- Détails affichés au hover -->
-      <div v-if="isHovered" class="hero-details">
-        <div class="stat">
-          <span>Intelligence:</span>
-          <div class="bar">
-            <div
-              class="progress"
-              :style="{ '--progress-width': hero.powerstats.intelligence + '%' }"
-            ></div>
-          </div>
-        </div>
-        <div class="stat">
-          <span>Strength:</span>
-          <div class="bar">
-            <div
-              class="progress"
-              :style="{ '--progress-width': hero.powerstats.strength + '%' }"
-            ></div>
-          </div>
-        </div>
-        <div class="stat">
-          <span>Speed:</span>
-          <div class="bar">
-            <div
-              class="progress"
-              :style="{ '--progress-width': hero.powerstats.speed + '%' }"
-            ></div>
-          </div>
-        </div>
-        <div class="stat">
-          <span>Durability:</span>
-          <div class="bar">
-            <div
-              class="progress"
-              :style="{ '--progress-width': hero.powerstats.durability + '%' }"
-            ></div>
-          </div>
-        </div>
-        <div class="stat">
-          <span>Power:</span>
-          <div class="bar">
-            <div
-              class="progress"
-              :style="{ '--progress-width': hero.powerstats.power + '%' }"
-            ></div>
-          </div>
+  <div class="hero-card">
+    <!-- Détails affichés au hover -->
+    <div v-if="isHovered && hero.powerstats" class="hero-details">
+      <div v-for="(stat, key) in powerstatsList" :key="key" class="stat">
+        <span>{{ stat.label }}:</span>
+        <div class="bar">
+          <div
+            class="progress"
+            :style="{ width: (hero.powerstats[key] || 0) + '%' }"
+          ></div>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    props: {
-      hero: Object,
-      isHovered: Boolean,
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    hero: Object,
+    isHovered: Boolean,
+  },
+  computed: {
+    powerstatsList() {
+      return {
+        intelligence: { label: "Intelligence" },
+        strength: { label: "Strength" },
+        speed: { label: "Speed" },
+        durability: { label: "Durability" },
+        power: { label: "Power" },
+      };
     },
-  };
-  </script>
+  },
+};
+</script>
   
   <style scoped>
   .hero-card {

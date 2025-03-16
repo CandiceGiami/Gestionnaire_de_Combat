@@ -1,17 +1,36 @@
-<script setup>
-import NavBar from '@/components/NavBar.vue'
-import affichageHero from '@/components/affichageHero.vue'
-import FightScene from '@/components/FightScene.vue'
-import HeroList from '@/components/HeroList.vue'
-</script>
-
 <template>
-  <NavBar />
-  <affichageHero />
-  <FightScene />
-  <HeroList />
+  <div>
+
+
+    <!-- ✅ Chargement sécurisé pour éviter les bugs -->
+    <div v-if="loading">Chargement des héros...</div>
+    <div v-else-if="heroes.length > 0">
+      <affichageHero />
+      <FightScene />
+    </div>
+    <p v-else>⚠️ Aucun héros disponible.</p>
+  </div>
 </template>
 
+<script setup>
+import { computed, onMounted } from 'vue';
+import { useHeroStore } from '@/stores/HeroStore';
+import affichageHero from '@/components/affichageHero.vue';
+import FightScene from '@/components/FightScene.vue';
+
+const heroStore = useHeroStore();
+const heroes = computed(() => heroStore.heroes);
+const loading = computed(() => heroStore.loading);
+
+onMounted(() => {
+  console.log("🔄 Chargement des héros...");
+  heroStore.fetchHeroes(); // ✅ Nouvelle méthode adaptée à la nouvelle API
+});
+</script>
+
 <style scoped>
-/* Ajoute ici les styles spécifiques à la page */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
 </style>

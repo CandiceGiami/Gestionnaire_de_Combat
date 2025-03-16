@@ -1,3 +1,47 @@
+<script>
+export default {
+  props: {
+    hero: Object,
+    isHovered: Boolean,
+    isSelected: Boolean,
+  },
+  data() {
+    return {
+      animatedStats: {
+        intelligence: 0,
+        strength: 0,
+        speed: 0,
+        durability: 0,
+        power: 0,
+      },
+    };
+  },
+  methods: {
+    startAnimation() {
+      this.$emit("hover", this.hero.id);
+      setTimeout(() => {
+        this.animatedStats.intelligence = this.hero.powerstats.intelligence;
+        this.animatedStats.strength = this.hero.powerstats.strength;
+        this.animatedStats.speed = this.hero.powerstats.speed;
+        this.animatedStats.durability = this.hero.powerstats.durability;
+        this.animatedStats.power = this.hero.powerstats.power;
+      }, 100);
+    },
+    resetAnimation() {
+      this.$emit("hover", null);
+      this.animatedStats.intelligence = 0;
+      this.animatedStats.strength = 0;
+      this.animatedStats.speed = 0;
+      this.animatedStats.durability = 0;
+      this.animatedStats.power = 0;
+    },
+    selectHero() {
+      this.$emit("select", this.hero);
+    },
+  },
+};
+</script>
+
 <template>
   <div
     class="hero-card"
@@ -7,9 +51,7 @@
     @mouseleave="resetAnimation"
   >
     <div class="hero-image-container">
-      <img :src="hero.image?.url" :alt="hero.name" />
-
-      <!-- Pop-up des stats SUR l'image -->
+      <img :src="hero.images.md" :alt="hero.name" />
       <div v-if="isHovered" class="hero-stats">
         <p><strong>Intelligence:</strong></p>
         <div class="stat-bar">
@@ -37,56 +79,9 @@
         </div>
       </div>
     </div>
-
     <p>{{ hero.name }}</p>
   </div>
 </template>
-
-<script>
-export default {
-  props: {
-    hero: Object,
-    isHovered: Boolean,
-    isSelected: Boolean,
-  },
-  data() {
-    return {
-      animatedStats: {
-        intelligence: 0,
-        strength: 0,
-        speed: 0,
-        durability: 0,
-        power: 0,
-      },
-    };
-  },
-  methods: {
-    startAnimation() {
-      this.$emit("hover", this.hero.id);
-      // Déclenche l'animation en mettant à jour les valeurs progressivement
-      setTimeout(() => {
-        this.animatedStats.intelligence = this.hero.powerstats.intelligence;
-        this.animatedStats.strength = this.hero.powerstats.strength;
-        this.animatedStats.speed = this.hero.powerstats.speed;
-        this.animatedStats.durability = this.hero.powerstats.durability;
-        this.animatedStats.power = this.hero.powerstats.power;
-      }, 100); // Ajout d'un petit délai pour déclencher la transition
-    },
-    resetAnimation() {
-      this.$emit("hover", null);
-      // Remet les jauges à 0 pour relancer l'animation au prochain hover
-      this.animatedStats.intelligence = 0;
-      this.animatedStats.strength = 0;
-      this.animatedStats.speed = 0;
-      this.animatedStats.durability = 0;
-      this.animatedStats.power = 0;
-    },
-    selectHero() {
-      this.$emit("select", this.hero);
-    },
-  },
-};
-</script>
 
 <style scoped>
 .hero-card {

@@ -1,7 +1,7 @@
 <template>
   <div v-if="player1 && player2" class="fight-scene">
-        <!-- Tableau des stats Player 1 -->
-        <div class="stats-container player1-stats">
+    <!-- Tableau des stats Player 1 -->
+    <div class="stats-container player1-stats">
       <h3>Stats</h3>
       <div v-for="(stat, key) in player1.powerstats" :key="key" class="stat-row">
         <span>{{ key }}:</span>
@@ -9,14 +9,14 @@
           <div class="stat-fill" :style="getStatBarStyle(player1.powerstats[key])"></div>
         </div>
         <span :class="getStatClass(player1.powerstats[key], player2.powerstats[key])">
-          {{ player1.powerstats[key] }}
+          {{ player1.powerstats[key] || 0 }}
         </span>
       </div>
       <h3 :class="getStatClass(player1Score, player2Score)">Score: {{ player1Score }}</h3>
     </div>
+
     <HeroCard :hero="player1" :isSelected="true" class="hero-card left floating" />
 
-    
     <div class="vs-container">
       <p class="vs-text">VS</p>
 
@@ -25,11 +25,12 @@
           <div class="indicator" :style="indicatorStyle"></div>
         </div>
       </div>
-      
+
       <button class="restart-btn" @click="restartFight">Restart</button>
     </div>
 
     <HeroCard :hero="player2" :isSelected="true" class="hero-card right floating" />
+
     <!-- Tableau des stats Player 2 -->
     <div class="stats-container player2-stats">
       <h3>Stats</h3>
@@ -39,7 +40,7 @@
           <div class="stat-fill" :style="getStatBarStyle(player2.powerstats[key])"></div>
         </div>
         <span :class="getStatClass(player2.powerstats[key], player1.powerstats[key])">
-          {{ player2.powerstats[key] }}
+          {{ player2.powerstats[key] || 0 }}
         </span>
       </div>
       <h3 :class="getStatClass(player2Score, player1Score)">Score: {{ player2Score }}</h3>
@@ -58,28 +59,13 @@ export default {
   },
   computed: {
     totalScore() {
-      return (
-        parseInt(this.player1.powerstats.intelligence) +
-        parseInt(this.player1.powerstats.strength) +
-        parseInt(this.player1.powerstats.speed) +
-        parseInt(this.player2.powerstats.intelligence) +
-        parseInt(this.player2.powerstats.strength) +
-        parseInt(this.player2.powerstats.speed)
-      );
+      return this.calculateTotalScore(this.player1) + this.calculateTotalScore(this.player2);
     },
     player1Score() {
-      return (
-        parseInt(this.player1.powerstats.intelligence) +
-        parseInt(this.player1.powerstats.strength) +
-        parseInt(this.player1.powerstats.speed)
-      );
+      return this.calculateTotalScore(this.player1);
     },
     player2Score() {
-      return (
-        parseInt(this.player2.powerstats.intelligence) +
-        parseInt(this.player2.powerstats.strength) +
-        parseInt(this.player2.powerstats.speed)
-      );
+      return this.calculateTotalScore(this.player2);
     },
     winnerColor() {
       return this.player1Score > this.player2Score ? "blue" : "red";
@@ -90,7 +76,7 @@ export default {
     indicatorStyle() {
       const winnerScore = Math.max(this.player1Score, this.player2Score);
       const loserScore = Math.min(this.player1Score, this.player2Score);
-      const percentage = (winnerScore / (winnerScore + loserScore)) * 100;
+      const percentage = winnerScore + loserScore > 0 ? (winnerScore / (winnerScore + loserScore)) * 100 : 50;
 
       return {
         width: `${percentage}%`,
@@ -105,22 +91,17 @@ export default {
       this.$emit("restart"); // Réinitialisation du combat
     },
     startFightAnimation() {
-      // Sélection des éléments
       const leftHero = document.querySelector('.hero-card.left');
       const rightHero = document.querySelector('.hero-card.right');
       const fightBar = document.querySelector('.fight-bar');
       const stats = document.querySelectorAll('.stat-value');
 
       if (leftHero && rightHero && fightBar) {
-        // Effet de tremblement sur les héros et la barre
         leftHero.classList.add('shake');
         rightHero.classList.add('shake');
         fightBar.classList.add('shake');
-
-        // Effet de tremblement sur les stats
         stats.forEach(stat => stat.classList.add('shake'));
 
-        // Suppression de l'effet après 4.5s
         setTimeout(() => {
           leftHero.classList.remove('shake');
           rightHero.classList.remove('shake');
@@ -130,22 +111,34 @@ export default {
       }
     },
     getStatClass(playerValue, opponentValue) {
-      if (parseInt(playerValue) > parseInt(opponentValue)) return "stat-win";
-      if (parseInt(playerValue) < parseInt(opponentValue)) return "stat-lose";
+      if ((parseInt(playerValue) || 0) > (parseInt(opponentValue) || 0)) return "stat-win";
+      if ((parseInt(playerValue) || 0) < (parseInt(opponentValue) || 0)) return "stat-lose";
       return "";
     },
     getStatBarStyle(value) {
       return {
-        width: `${(parseInt(value) / 100) * 100}%`, 
+        width: `${(parseInt(value) || 0)}%`,
         background: "yellow",
       };
+    },
+    calculateTotalScore(hero) {
+      if (!hero || !hero.powerstats) return 0;
+      return (
+        (parseInt(hero.powerstats.intelligence) || 0) +
+        (parseInt(hero.powerstats.strength) || 0) +
+        (parseInt(hero.powerstats.speed) || 0) +
+        (parseInt(hero.powerstats.durability) || 0) +
+        (parseInt(hero.powerstats.combat) || 0) +
+        (parseInt(hero.powerstats.power) || 0)
+      );
     }
   },
   mounted() {
-    this.startFightAnimation(); // Lancement automatique de l'animation
+    this.startFightAnimation();
   }
 };
 </script>
+
 
 <style scoped>
 /* ====================== STYLE DE LA SCÈNE ====================== */

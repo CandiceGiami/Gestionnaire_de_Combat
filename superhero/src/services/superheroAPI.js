@@ -1,25 +1,27 @@
 import axios from 'axios';
 
-// Utilisation du proxy au lieu de l'URL directe pour éviter les erreurs CORS
-const API_URL = '/api'; 
+const API_URL = 'https://akabab.github.io/superhero-api/api';
 
-export const getHeroById = async (id) => {
+export const getAllHeroes = async () => {
   try {
-    const response = await axios.get(`${API_URL}/${id}`);
+    console.log('📡 Envoi de la requête à l’API...');
+    const response = await axios.get(`${API_URL}/all.json`);
+    console.log('✅ Réponse API reçue :', response.data);
     return response.data;
   } catch (error) {
-    console.error('Erreur lors de la récupération du héros :', error);
-    return null;
+    console.error('❌ Erreur lors de la récupération des héros :', error);
+    return [];
   }
 };
 
-export const searchHeroes = async (query) => {
+export const getHeroById = async (id) => {
   try {
-    console.log(API_URL)
-    const response = await axios.get(`${API_URL}/search/${query}`);
-    return response.data.results;
+    console.log(`📡 Récupération du héros ID: ${id}`);
+    const response = await axios.get(`${API_URL}/id/${id}.json`);
+    console.log("✅ Héros récupéré :", response.data);
+    return response.data;
   } catch (error) {
-    console.error('Erreur lors de la recherche :', error);
-    return [];
+    console.error(`❌ Erreur lors de la récupération du héros ID ${id} :`, error);
+    return null;
   }
 };

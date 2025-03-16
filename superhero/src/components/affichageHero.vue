@@ -101,7 +101,6 @@ export default {
 
     const searchQueryPlayer1 = ref("");
     const searchQueryPlayer2 = ref("");
-
     const showFilterMenuPlayer1 = ref(false);
     const showFilterMenuPlayer2 = ref(false);
 
@@ -118,44 +117,44 @@ export default {
     const sortOptionPlayer1 = ref({ type: "name", order: "asc" });
     const sortOptionPlayer2 = ref({ type: "name", order: "asc" });
 
-    const filteredHeroesPlayer1 = computed(() => {
+    const filteredHeroes = (query, sortOption) => {
       return [...heroes.value]
-        .filter(hero => hero.name.toLowerCase().includes(searchQueryPlayer1.value.toLowerCase()))
-        .sort((a, b) => sortFunction(a, b, sortOptionPlayer1.value));
-    });
+        .filter((hero) =>
+          hero.name.toLowerCase().includes(query.value.toLowerCase())
+        )
+        .sort((a, b) => sortFunction(a, b, sortOption.value));
+    };
 
-    const filteredHeroesPlayer2 = computed(() => {
-      return [...heroes.value]
-        .filter(hero => hero.name.toLowerCase().includes(searchQueryPlayer2.value.toLowerCase()))
-        .sort((a, b) => sortFunction(a, b, sortOptionPlayer2.value));
-    });
+    const filteredHeroesPlayer1 = computed(() =>
+      filteredHeroes(searchQueryPlayer1, sortOptionPlayer1)
+    );
+    const filteredHeroesPlayer2 = computed(() =>
+      filteredHeroes(searchQueryPlayer2, sortOptionPlayer2)
+    );
 
     const sortFunction = (a, b, option) => {
       const calculateHeroScore = (hero) => {
-        if (!hero.stats) return 0;
-
-        // Additionne toutes les stats comme dans FightScene.vue
         return (
-          (parseInt(hero.stats.strength) || 0) +
-          (parseInt(hero.stats.speed) || 0) +
-          (parseInt(hero.stats.durability) || 0) +
-          (parseInt(hero.stats.intelligence) || 0) +
-          (parseInt(hero.stats.combat) || 0) +
-          (parseInt(hero.stats.power) || 0)
+          (parseInt(hero.powerstats.strength) || 0) +
+          (parseInt(hero.powerstats.speed) || 0) +
+          (parseInt(hero.powerstats.durability) || 0) +
+          (parseInt(hero.powerstats.intelligence) || 0) +
+          (parseInt(hero.powerstats.combat) || 0) +
+          (parseInt(hero.powerstats.power) || 0)
         );
       };
 
       if (option.type === "name") {
-        return option.order === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+        return option.order === "asc"
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
       } else if (option.type === "score") {
-        const scoreA = calculateHeroScore(a);
-        const scoreB = calculateHeroScore(b);
-        return option.order === "asc" ? scoreA - scoreB : scoreB - scoreA;
+        return option.order === "asc"
+          ? calculateHeroScore(a) - calculateHeroScore(b)
+          : calculateHeroScore(b) - calculateHeroScore(a);
       }
       return 0;
     };
-
-
 
     const sortHeroes = (type, order, player) => {
       if (player === "player1") {
@@ -166,9 +165,6 @@ export default {
     };
 
     const startFight = () => {
-      console.log("Selected Player 1:", selectedPlayer1.value ? JSON.stringify(selectedPlayer1.value, null, 2) : "null");
-      console.log("Selected Player 2:", selectedPlayer2.value ? JSON.stringify(selectedPlayer2.value, null, 2) : "null");
-
       if (selectedPlayer1.value && selectedPlayer2.value) {
         battleStarted.value = true;
       } else {
@@ -177,17 +173,35 @@ export default {
     };
 
     onMounted(() => {
-      heroStore.searchHeroes("s");
+  if (heroStore.heroes.length === 0) {
+    console.log('📡 Chargement des héros...');
+    heroStore.fetchHeroes();
+  } else {
+    console.log('✅ Héros déjà chargés, pas de nouvel appel API');
+  }
     });
 
-    return { 
-      heroes, hoveredHero, selectedPlayer1, selectedPlayer2, canFight, startFight, battleStarted, 
-      searchQueryPlayer1, searchQueryPlayer2, filteredHeroesPlayer1, filteredHeroesPlayer2,
-      showFilterMenuPlayer1, showFilterMenuPlayer2, toggleFilterMenu, sortHeroes
+    return {
+      heroes,
+      hoveredHero,
+      selectedPlayer1,
+      selectedPlayer2,
+      canFight,
+      startFight,
+      battleStarted,
+      searchQueryPlayer1,
+      searchQueryPlayer2,
+      filteredHeroesPlayer1,
+      filteredHeroesPlayer2,
+      showFilterMenuPlayer1,
+      showFilterMenuPlayer2,
+      toggleFilterMenu,
+      sortHeroes,
     };
   },
 };
 </script>
+
 
 
 <style scoped>
@@ -203,6 +217,7 @@ export default {
   font-weight: bold;
   margin-bottom: 10px;
   color: white;
+  margin-top: 25%;
 }
 .hero-selection {
   position: absolute; /* Remplace fixed par absolute */

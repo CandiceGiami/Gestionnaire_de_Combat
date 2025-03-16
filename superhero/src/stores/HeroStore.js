@@ -1,46 +1,38 @@
-import { defineStore } from 'pinia'
-import { getHeroById, searchHeroes } from '@/services/superheroAPI'
+import { defineStore } from 'pinia';
+import { getAllHeroes, getHeroById } from '@/services/superheroAPI';
 
 export const useHeroStore = defineStore('heroStore', {
   state: () => ({
     heroes: [],
-    selectedHero: null,
+    selectedHero: null, // Pour stocker un héros sélectionné
     loading: false,
-    error: null,
+    fetchError: null,
   }),
-
   actions: {
-    async fetchHeroById(id) {
-      this.loading = true
-      this.error = null
+    async fetchHeroes() {
+      this.loading = true;
+      this.fetchError = null;
       try {
-        const hero = await getHeroById(id)
-        this.selectedHero = hero
+        console.log("📡 Requête pour récupérer les héros...");
+        this.heroes = await getAllHeroes();
+        console.log("✅ Héros récupérés :", this.heroes);
       } catch (err) {
-        console.error('Erreur attrapée :', err) // Debug
-        this.error = err instanceof Error ? err.message : 'Une erreur inconnue est survenue'
+        console.error("❌ Erreur lors de la récupération des héros :", err);
+        this.fetchError = 'Impossible de récupérer les héros.';
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
-    async searchHeroes(query) {
-      this.loading = true
-      this.error = null
+    async fetchHeroById(id) {
+      this.loading = true;
       try {
-        const heroes = await searchHeroes(query)
-        this.heroes = heroes
+        this.selectedHero = await getHeroById(id);
       } catch (err) {
-        console.error('Erreur attrapée :', err) // Debug
-        this.error = err instanceof Error ? err.message : 'Une erreur inconnue est survenue'
+        console.error(`❌ Erreur lors de la récupération du héros ID ${id} :`, err);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
-    actions: {
-      clearHeroes() {
-        this.heroes = []
-      }
-    }
   },
-})
+});

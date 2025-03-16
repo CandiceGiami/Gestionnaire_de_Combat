@@ -1,28 +1,34 @@
-<script setup>
-import HeroList from './components/HeroList.vue';
-import NavBar from './components/NavBar.vue';
-
-import affichageHero from './components/affichageHero.vue';
-
-
-
-</script>
-
 <template>
-  
-  <affichageHero/>
-  <NavBar/>
-  <HeroList/>
+  <div id="app">
+    <!-- Navigation -->
+    <NavBar />
+
+    <!-- Contenu dynamique -->
+    <main>
+      <router-view />
+    </main>
+  </div>
 </template>
 
-<style scoped>
-h1 {
-  color: white;
+<script setup>
+import NavBar from '@/components/NavBar.vue';
+</script>
+
+<style>
+/* Applique une mise en page générale */
+#app {
+  font-family: Impact, Haettenschweiler, Arial Narrow Bold, sans-serif;
   text-align: center;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-img {
-  max-width: 300px;
-  display: block;
-  margin: 0 auto;
+
+/* Le contenu est en dessous de la navbar */
+main {
+  flex: 1;
+  margin-top: 60px; /* Ajuste selon la hauteur de ta navbar */
+  padding: 20px;
 }
 </style>
