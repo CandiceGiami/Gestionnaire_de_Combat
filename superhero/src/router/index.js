@@ -3,27 +3,35 @@ import { createPinia } from 'pinia'
 import App from '@/App.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: () => import('@/views/HomeView.vue'),
+      name: 'Home',
+      component: () => import('@/views/HomeView.vue'),  // ✅ Assure-toi que ce fichier existe
     },
     {
-      path: '/about',
-      name: 'about',
-      component: () => import('@/views/AboutView.vue'),
+      path: "/heroes",
+      name: "HeroLibrary",
+      component: () => import("@/views/HeroLibrary.vue"), // ✅ Fichier bien placé
     },
+    {
+      path: "/history",
+      name: "History",
+      component: () => import("@/views/HistoryView.vue"), // ✅ Assure-toi que ce fichier existe
+    }
   ],
 })
 
-// Ajout de Pinia
+// Initialisation Vue + Pinia
 import { createApp } from 'vue'
 const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 
-app.mount('#app')
+// ✅ Évite le problème de double mount
+if (!app._container) {
+  app.mount('#app')
+}
 
 export default router

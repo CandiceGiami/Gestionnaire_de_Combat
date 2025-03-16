@@ -37,5 +37,10 @@ export const useHeroStore = defineStore('heroStore', {
         this.loading = false
       }
     },
+    actions: {
+      clearHeroes() {
+        this.heroes = []
+      }
+    }
   },
 })

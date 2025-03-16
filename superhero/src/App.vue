@@ -11,13 +11,8 @@ import affichageHero from './components/affichageHero.vue';
 <template>
   
   <affichageHero/>
-  
-  
   <NavBar/>
-  
   <HeroList/>
-  
-
 </template>
 
 <style scoped>

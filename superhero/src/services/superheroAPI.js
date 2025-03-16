@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Utilisation du proxy au lieu de l'URL directe pour éviter les erreurs CORS
 const API_URL = '/api'; 
 
 export const getHeroById = async (id) => {
