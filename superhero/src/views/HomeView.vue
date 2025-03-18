@@ -5,7 +5,7 @@
     <!-- ✅ Chargement sécurisé pour éviter les bugs -->
     <div v-if="loading">Chargement des héros...</div>
     <div v-else-if="heroes.length > 0">
-      <affichageHero />
+      <AffichageHero />
       <FightScene />
     </div>
     <p v-else>⚠️ Aucun héros disponible.</p>
@@ -15,7 +15,7 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { useHeroStore } from '@/stores/HeroStore';
-import affichageHero from '@/components/affichageHero.vue';
+import AffichageHero from '@/components/AffichageHero.vue';
 import FightScene from '@/components/FightScene.vue';
 
 const heroStore = useHeroStore();

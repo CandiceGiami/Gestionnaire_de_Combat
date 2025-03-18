@@ -1,27 +1,30 @@
 <template>
-  <div v-if="player1 && player2" class="fight-scene">
+  <div v-if="player1 && player2" class="fight-scene animated">
     <!-- Tableau des stats Player 1 -->
     <div class="stats-container player1-stats">
       <h3>Stats</h3>
       <div v-for="(stat, key) in player1.powerstats" :key="key" class="stat-row">
         <span>{{ key }}:</span>
         <div class="stat-bar">
-          <div class="stat-fill" :style="getStatBarStyle(player1.powerstats[key])"></div>
+          <div class="stat-fill" :style="getStatBarStyle('player1', key)"></div>
         </div>
-        <span :class="getStatClass(player1.powerstats[key], player2.powerstats[key])">
-          {{ player1.powerstats[key] || 0 }}
+        <span :class="showResults ? getStatClass(player1.powerstats[key], player2.powerstats[key]) : ''">
+          {{ displayStatPlayer1(key) }}
         </span>
       </div>
-      <h3 :class="getStatClass(player1Score, player2Score)">Score: {{ player1Score }}</h3>
+      <h3 :class="showResults ? getStatClass(player1Score, player2Score) : ''" class="score">
+        Score: <span :class="{ 'white-text': !showResults }">{{ displayPlayer1Score }}</span>
+      </h3>
     </div>
 
     <HeroCard :hero="player1" :isSelected="true" class="hero-card left floating" />
 
     <div class="vs-container">
       <p class="vs-text">VS</p>
+      <p v-if="winnerText" class="victory-text">{{ winnerText }}</p>
 
       <div class="fight-bar-container">
-        <div class="fight-bar" :style="{ background: loserColor }">
+        <div class="fight-bar" :style="{ background: fightBarColor, transition: 'background 0.3s ease-in-out' }">
           <div class="indicator" :style="indicatorStyle"></div>
         </div>
       </div>
@@ -37,19 +40,22 @@
       <div v-for="(stat, key) in player2.powerstats" :key="key" class="stat-row">
         <span>{{ key }}:</span>
         <div class="stat-bar">
-          <div class="stat-fill" :style="getStatBarStyle(player2.powerstats[key])"></div>
+          <div class="stat-fill" :style="getStatBarStyle('player2', key)"></div>
         </div>
-        <span :class="getStatClass(player2.powerstats[key], player1.powerstats[key])">
-          {{ player2.powerstats[key] || 0 }}
+        <span :class="showResults ? getStatClass(player2.powerstats[key], player1.powerstats[key]) : ''">
+          {{ displayStatPlayer2(key) }}
         </span>
       </div>
-      <h3 :class="getStatClass(player2Score, player1Score)">Score: {{ player2Score }}</h3>
+      <h3 :class="showResults ? getStatClass(player2Score, player1Score) : ''" class="score">
+        Score: <span :class="{ 'white-text': !showResults }">{{ displayPlayer2Score }}</span>
+      </h3>
     </div>
   </div>
 </template>
 
 <script>
 import HeroCard from "@/components/HeroCard.vue";
+import { useHistoryStore } from "@/stores/HistoryStore"; // Import du store Pinia
 
 export default {
   components: { HeroCard },
@@ -57,91 +63,236 @@ export default {
     player1: Object,
     player2: Object,
   },
+  data() {
+    return {
+      historyStore: useHistoryStore(), // Store d'historique
+      winnerText: "",
+      showResults: false,
+      fightAudio: null,
+      victoryAudio: null,
+      randomPlayer1Score: 0,
+      randomPlayer2Score: 0,
+      fightBarColor: "red",
+      indicatorWidth: "50%", // Position initiale
+      isFinalizing: false, // Indique si l'animation finale est en cours
+    };
+  },
   computed: {
-    totalScore() {
-      return this.calculateTotalScore(this.player1) + this.calculateTotalScore(this.player2);
-    },
     player1Score() {
       return this.calculateTotalScore(this.player1);
     },
     player2Score() {
       return this.calculateTotalScore(this.player2);
     },
+    displayPlayer1Score() {
+      return this.showResults ? this.player1Score : this.randomPlayer1Score;
+    },
+    displayPlayer2Score() {
+      return this.showResults ? this.player2Score : this.randomPlayer2Score;
+    },
     winnerColor() {
       return this.player1Score > this.player2Score ? "blue" : "red";
     },
-    loserColor() {
-      return this.winnerColor === "blue" ? "red" : "blue";
-    },
     indicatorStyle() {
-      const winnerScore = Math.max(this.player1Score, this.player2Score);
-      const loserScore = Math.min(this.player1Score, this.player2Score);
-      const percentage = winnerScore + loserScore > 0 ? (winnerScore / (winnerScore + loserScore)) * 100 : 50;
-
       return {
-        width: `${percentage}%`,
+        width: this.indicatorWidth,
         background: this.winnerColor,
-        transition: "width 4s ease-in-out, background 4s ease-in-out",
-        left: this.player1Score > this.player2Score ? "0%" : `${100 - percentage}%`,
+        transition: this.isFinalizing ? "width 2s ease-in-out" : "width 1s ease-in-out",
       };
     }
   },
   methods: {
-    restartFight() {
-      this.$emit("restart"); // Réinitialisation du combat
-    },
-    startFightAnimation() {
-      const leftHero = document.querySelector('.hero-card.left');
-      const rightHero = document.querySelector('.hero-card.right');
-      const fightBar = document.querySelector('.fight-bar');
-      const stats = document.querySelectorAll('.stat-value');
-
-      if (leftHero && rightHero && fightBar) {
-        leftHero.classList.add('shake');
-        rightHero.classList.add('shake');
-        fightBar.classList.add('shake');
-        stats.forEach(stat => stat.classList.add('shake'));
-
-        setTimeout(() => {
-          leftHero.classList.remove('shake');
-          rightHero.classList.remove('shake');
-          fightBar.classList.remove('shake');
-          stats.forEach(stat => stat.classList.remove('shake'));
-        }, 4500);
+    // ✅ Arrête tous les sons en une seule fonction
+    stopAllSounds() {
+      if (this.fightAudio) {
+        this.fightAudio.pause();
+        this.fightAudio.currentTime = 0;
+        this.fightAudio = null;
+      }
+      if (this.victoryAudio) {
+        this.victoryAudio.pause();
+        this.victoryAudio.currentTime = 0;
+        this.victoryAudio = null;
       }
     },
+
+    // ✅ Relance un combat proprement
+    restartFight() {
+      this.stopAllSounds(); // ✅ Arrête tous les sons avant de reset
+
+      this.indicatorWidth = "50%"; // 🔥 Remet la barre au centre
+      this.isFinalizing = false; // 🔥 Permet de refaire l'animation correctement
+      this.showResults = false; // 🔥 Cache les résultats
+      this.fightBarColor = "red"; // 🔥 Réinitialise la couleur de la barre
+
+      this.$emit("restart"); // Émet un événement pour redémarrer la sélection
+
+      setTimeout(() => {
+        this.startFightAnimation(); // 🔥 Relance complètement l'animation
+      }, 500); // Petite pause pour éviter un bug visuel
+    },
+
+    // ✅ Lancement du combat
+    startFightAnimation() {
+      this.stopAllSounds(); // ✅ Assure que rien ne joue en double
+
+      this.fightAudio = new Audio("/sounds/fight.mp3");
+      this.fightAudio.play();
+
+      this.indicatorWidth = "50%"; // 🔥 Remet la barre au centre avant chaque combat
+      this.isFinalizing = false; // 🔥 Permet de relancer l'animation
+
+      const scene = document.querySelector(".fight-scene");
+      if (scene) {
+        scene.classList.add("appear");
+
+        setTimeout(() => {
+          scene.classList.add("shake");
+          setTimeout(() => {
+            scene.classList.remove("shake");
+          }, 800);
+        }, 500);
+      }
+
+      this.animateStats();
+      this.animateScores();
+      this.animateFightBar();
+
+      // ⚡ La barre commence à se remplir doucement à 13s
+      setTimeout(() => {
+        this.finalizeFightBar();
+      }, 13000);
+
+      // ⚡ Affichage du vainqueur à 15s et enregistrement
+      setTimeout(() => {
+        this.showResults = true;
+        this.displayWinner();
+        this.saveFightToHistory();
+      }, 15000);
+    },
+
+    // ✅ Animation des stats en live
+    animateStats() {
+      const interval = setInterval(() => {
+        if (this.showResults) {
+          clearInterval(interval);
+        }
+        this.$forceUpdate();
+      }, 100);
+    },
+
+    // ✅ Animation des scores avec valeurs aléatoires
+    animateScores() {
+      const interval = setInterval(() => {
+        if (this.showResults) {
+          clearInterval(interval);
+        }
+        this.randomPlayer1Score = Math.floor(Math.random() * 600);
+        this.randomPlayer2Score = Math.floor(Math.random() * 600);
+      }, 100);
+    },
+
+    // ✅ Animation dynamique de la fight-bar
+    animateFightBar() {
+      let counter = 0;
+      this.isFinalizing = false; // 🔥 Assure que l'animation peut bien repartir
+      this.indicatorWidth = "50%"; // 🔥 Remet la barre au centre pour la relancer
+
+      const changeBar = () => {
+        if (this.showResults || this.isFinalizing) return; // 🔄 Stoppe l'animation une fois le combat fini
+
+        let randomPercentage = 30 + Math.random() * 40; // Valeur entre 30% et 70%
+        this.indicatorWidth = `${randomPercentage}%`;
+
+        counter++;
+        if (counter < 40) {
+          setTimeout(changeBar, Math.random() * 400 + 100);
+        }
+      };
+
+      setTimeout(changeBar, 500); // 🔥 Assure que l'animation démarre après une courte pause
+    },
+
+    // ✅ Finalisation de la barre de combat
+    finalizeFightBar() {
+      this.isFinalizing = true; // 🔥 Active une transition fluide
+      this.indicatorWidth = this.player1Score > this.player2Score ? "100%" : "0%";
+      this.fightBarColor = this.player1Score > this.player2Score ? "blue" : "red"; // 🔥 Change la couleur vers le gagnant
+    },
+
+    // ✅ Affichage du vainqueur avec le son
+    displayWinner() {
+      this.stopAllSounds(); // ✅ Assure que le son ne se superpose pas
+
+      this.victoryAudio = new Audio("/sounds/victoire.mp3");
+      this.victoryAudio.play();
+
+      this.winnerText = this.player1Score > this.player2Score ? "Player 1 VICTORY" : "Player 2 VICTORY";
+    },
+
+    // ✅ Sauvegarde des résultats dans l’historique
+    saveFightToHistory() {
+      this.historyStore.addFight(
+        this.winnerText,
+        this.player1.name,
+        this.player2.name,
+        this.player1Score,
+        this.player2Score
+      );
+    },
+
+    // ✅ Style des barres de stats
+    getStatBarStyle(player, key) {
+      return {
+        width: this.showResults
+          ? `${(parseInt(this[player].powerstats[key]) || 0)}%`
+          : `${Math.floor(Math.random() * 100)}%`,
+        background: "yellow",
+        transition: this.showResults ? "width 1s ease-in-out" : "none",
+      };
+    },
+
+    // ✅ Affichage dynamique des stats
+    displayStatPlayer1(key) {
+      return this.showResults ? this.player1.powerstats[key] || 0 : Math.floor(Math.random() * 100);
+    },
+    displayStatPlayer2(key) {
+      return this.showResults ? this.player2.powerstats[key] || 0 : Math.floor(Math.random() * 100);
+    },
+
+    // ✅ Couleurs des stats
     getStatClass(playerValue, opponentValue) {
+      if (!this.showResults) return "";
       if ((parseInt(playerValue) || 0) > (parseInt(opponentValue) || 0)) return "stat-win";
       if ((parseInt(playerValue) || 0) < (parseInt(opponentValue) || 0)) return "stat-lose";
       return "";
     },
-    getStatBarStyle(value) {
-      return {
-        width: `${(parseInt(value) || 0)}%`,
-        background: "yellow",
-      };
-    },
+
+    // ✅ Calcul du score total d'un héros
     calculateTotalScore(hero) {
       if (!hero || !hero.powerstats) return 0;
-      return (
-        (parseInt(hero.powerstats.intelligence) || 0) +
-        (parseInt(hero.powerstats.strength) || 0) +
-        (parseInt(hero.powerstats.speed) || 0) +
-        (parseInt(hero.powerstats.durability) || 0) +
-        (parseInt(hero.powerstats.combat) || 0) +
-        (parseInt(hero.powerstats.power) || 0)
-      );
+      return Object.values(hero.powerstats).reduce((sum, val) => sum + (parseInt(val) || 0), 0);
     }
   },
+
+  // ✅ Arrêt du son si on quitte la scène
+  beforeUnmount() {
+    this.stopAllSounds();
+  },
+
   mounted() {
-    this.startFightAnimation();
+    if (this.player1 && this.player2) {
+      this.startFightAnimation();
+    }
   }
 };
 </script>
 
 
+
 <style scoped>
 /* ====================== STYLE DE LA SCÈNE ====================== */
+/* Apparition animée de la scène */
 .fight-scene {
   position: absolute;
   top: 50px;
@@ -156,6 +307,27 @@ export default {
   padding: 20px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
   z-index: 10;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: transform 0.7s ease-out, opacity 0.7s ease-out;
+}
+
+.fight-scene.appear {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Effet de tremblement */
+@keyframes scene-shake {
+  0% { transform: translate(0px, 0px) rotate(0deg); }
+  25% { transform: translate(-3px, 3px) rotate(-1deg); }
+  50% { transform: translate(3px, -3px) rotate(1deg); }
+  75% { transform: translate(-3px, 3px) rotate(-1deg); }
+  100% { transform: translate(0px, 0px) rotate(0deg); }
+}
+
+.fight-scene.shake {
+  animation: scene-shake 0.2s ease-in-out 3;
 }
 
 /* ====================== HERO CARDS ====================== */
@@ -323,5 +495,50 @@ export default {
   font-weight: bold;
 }
 
+/* ====================== victoire ====================== */
+.victory-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: yellow;
+  text-shadow: 0px 0px 10px rgba(255, 255, 0, 0.8), 0px 0px 20px rgba(255, 255, 0, 0.5);
+
+  /* Fond semi-transparent avec effet lumineux */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px 40px;
+  border-radius: 15px;
+  box-shadow: 0px 0px 15px rgba(255, 255, 0, 0.6);
+
+  /* Animation d’apparition épique */
+  animation: fade-in-scale 1s forwards, glow-effect 1.5s infinite alternate;
+  opacity: 0;
+  z-index: 100; /* Assure qu'il est bien au-dessus de tout */
+}
+
+/* Animation d'apparition avec léger zoom */
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Effet lumineux pulsant */
+@keyframes glow-effect {
+  from {
+    box-shadow: 0px 0px 15px rgba(255, 255, 0, 0.6);
+  }
+  to {
+    box-shadow: 0px 0px 25px rgba(255, 255, 0, 1);
+  }
+}
 
 </style>

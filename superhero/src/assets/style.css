@@ -188,7 +188,8 @@ body {
 
 
 .restart-btn {
-  margin-top: 20px;
+  position: absolute;
+  bottom: -100px;
   padding: 12px 25px;
   font-size: 1.5rem;
   font-weight: bold;
