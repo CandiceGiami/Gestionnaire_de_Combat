@@ -28,7 +28,7 @@ Le projet a été développé en collaboration entre **Joe** et **Candice**, cha
 - **Joe** :
   - Développement de la structure des composants Vue.js.
   - Implémentation des comoposants permettant de consulter les héros et la realisation des combats.
-  - Proposition d’une première version fonctionnelle de ces pages (qui, par la suite, ont été améliorés par Candice)" .
+  - Proposition d’une première version fonctionnelle de ces pages (qui, par la suite, ont été améliorés par Candice) .
 
 - **Candice** :
   - Amélioration du design dans tous les composants et intégration des animations pour une meilleure expérience utilisateur.
