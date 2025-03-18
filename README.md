@@ -80,7 +80,7 @@ Nous avons envisagé plusieurs évolutions pour enrichir l’application à l’
 - **Effets sonores et animations avancées** pour renforcer l’expérience immersive des combats.
 
 ## ❤️ Remerciements
-Ce projet a été une aventure passionnante grâce à la collaboration entre **Joe** et **Candice**. Merci à tous ceux qui nous ont soutenus et encouragés à perfectionner cette application !
+Ce projet a été une aventure passionnante grâce à la collaboration entre **Joe** et **Candice**. 
 
 ---
 🎮 **Prêts à combattre ? Sélectionnez vos héros et que le meilleur gagne !** 🔥
