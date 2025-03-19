@@ -1,10 +1,11 @@
 import { mount } from '@vue/test-utils';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import HeroSelection from '../components/AffichageHero.vue'; // Assurez-vous que le chemin est correct
+import HeroSelection from '../components/AffichageHero.vue';
 import { useHeroStore } from "../../src/stores/HeroStore";
 import HeroCard from '../../src/components/HeroCard.vue';
 import FightScene from '../../src/components/FightScene.vue';
 import { createPinia, setActivePinia } from 'pinia';
+
 // Mock du store HeroStore
 vi.mock('@/stores/HeroStore');
 

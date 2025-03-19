@@ -1,9 +1,9 @@
 body {
   font-family: Impact, sans-serif;
-  background: linear-gradient(to right, #c51d1d, #1414c7ba); /* Dégradé de rouge à bleu */
+  background: linear-gradient(to right, #c51d1d, #1414c7ba);
   background-repeat: no-repeat;
-  background-attachment: fixed; /* Fixe le fond pour éviter qu'il ne bouge */
-  background-size: cover; /* Remplit tout l'écran */
+  background-attachment: fixed; 
+  background-size: cover;
   width: 100vw;
   min-height: 100vh;
   height: auto;
@@ -26,14 +26,14 @@ body {
   animation: flickerText 1.5s infinite alternate;
 }
 
-/* Animation de scintillement */
+/* scintillement */
 @keyframes flickerText {
   0% { opacity: 1; text-shadow: 0 0 15px red, 0 0 30px darkred; }
   50% { opacity: 0.8; text-shadow: 0 0 5px red; }
   100% { opacity: 1; text-shadow: 0 0 15px red, 0 0 30px darkred; }
 }
 
-/* Effet dynamique sur le bouton FIGHT */
+/* bouton FIGHT */
 .fight-btn {
   font-size: 2rem;
   font-weight: bold;
@@ -50,7 +50,7 @@ body {
   animation: pulseBtn 1.5s infinite alternate;
 }
 
-/* Effet de pulsation pour donner un effet combat dynamique */
+/* Effet  */
 @keyframes pulseBtn {
   0% {
     transform: scale(1);
@@ -62,13 +62,11 @@ body {
   }
 }
 
-/* Effet hover */
 .fight-btn:hover:enabled {
   background: linear-gradient(45deg, #ff4d4d, #b30000);
   transform: scale(1.2);
 }
 
-/* Effet au clic */
 .fight-btn:active {
   transform: scale(1);
   box-shadow: 0px 2px 5px rgba(255, 0, 0, 0.7);
@@ -82,14 +80,13 @@ body {
   animation: none;
 }
 
-/* Réduction de l’espace sous "Choose Your Hero!" */
 .choose-hero {
-  margin-bottom: 15px; /* Au lieu de 30px ou plus */
+  margin-bottom: 15px; 
 }
 
-/* Légère montée de la section des héros */
+
 .hero-selection {
-  top: 75%; /* Au lieu de 85%, cela remonte un peu la section */
+  top: 75%; 
 }
 
 /* Animation d’entrée des héros */
@@ -148,7 +145,7 @@ body {
   animation-duration: 2.7s;
 }
 
-/* Player 1 en bleu brillant */
+/* Player 1 en bleu  */
 .txt_player.player-1 {
   color: white;
   font-size: 2.5rem;
@@ -157,7 +154,7 @@ body {
                0px 0px 30px rgba(0, 150, 255, 0.6);
 }
 
-/* Player 2 en rouge brillant */
+/* Player 2 en rouge */
 .txt_player.player-2 {
   color: white;
   font-size: 2.5rem;
@@ -166,7 +163,7 @@ body {
                0px 0px 30px rgba(255, 50, 50, 0.6);
 }
 
-/* Animation de glow */
+/* Animation */
 @keyframes glowPulse {
   0% { text-shadow: 0px 0px 10px rgb(246, 66, 66); }
   50% { text-shadow: 0px 0px 20px rgba(69, 149, 234, 0.8); }
@@ -181,12 +178,12 @@ body {
 /* Désactiver la sélection des héros après le combat */
 .disabled {
   opacity: 0.5;
-  pointer-events: none; /* Désactive l'interaction */
+  pointer-events: none;
   filter: grayscale(100%); /* Rend les cartes grisées */
   transition: opacity 0.5s ease, filter 0.5s ease;
 }
 
-
+/*restart*/
 .restart-btn {
   position: absolute;
   bottom: -100px;

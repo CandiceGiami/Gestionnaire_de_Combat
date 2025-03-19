@@ -4,15 +4,15 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
 export default defineConfig({
-  plugins: [vue()], // Support for Vue.js
+  plugins: [vue()], 
   resolve: {
     alias: {
-      '@': resolve(dirname(fileURLToPath(import.meta.url)), 'src'), // Resolves to the src directory
+      '@': resolve(dirname(fileURLToPath(import.meta.url)), 'src'), // Définit '@' comme alias pour le dossier 'src'
     },
   },
   test: {
-    setupFiles: './src/tests/setup.js',
-    environment: 'jsdom', // Simulates the DOM for tests
-    globals: true, // Enables global variables like describe, it, expect
+    setupFiles: './src/tests/setup.js',  // Fichier de configuration pour les tests
+    environment: 'jsdom', 
+    globals: true, 
   },
 });

@@ -8,17 +8,17 @@ const router = createRouter({
     {
       path: '/',
       name: 'Home',
-      component: () => import('@/views/HomeView.vue'),  // ✅ Assure-toi que ce fichier existe
+      component: () => import('@/views/HomeView.vue'),
     },
     {
       path: "/heroes",
       name: "HeroLibrary",
-      component: () => import("@/views/HeroLibrary.vue"), // ✅ Fichier bien placé
+      component: () => import("@/views/HeroLibrary.vue"),
     },
     {
       path: "/history",
       name: "History",
-      component: () => import("@/views/HistoryView.vue"), // ✅ Assure-toi que ce fichier existe
+      component: () => import("@/views/HistoryView.vue"),
     }
   ],
 })
@@ -29,7 +29,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 
-// ✅ Évite le problème de double mount
+// Évite le problème de double mount
 if (!app._container) {
   app.mount('#app')
 }

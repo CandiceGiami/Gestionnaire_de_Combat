@@ -16,25 +16,25 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+  import { computed } from "vue";
 
-// ✅ Déclaration propre des props avec `defineProps`
-const { hero, isHovered } = defineProps({
-  hero: Object,
-  isHovered: Boolean,
-});
+  // Déclaration des props
+  const { hero, isHovered } = defineProps({
+    hero: Object,
+    isHovered: Boolean,
+  });
 
-// ✅ Définition des statistiques des héros
-const powerstatsList = computed(() => ({
-  intelligence: { label: "Intelligence" },
-  strength: { label: "Strength" },
-  speed: { label: "Speed" },
-  durability: { label: "Durability" },
-  power: { label: "Power" },
-}));
+  // Définition des statistiques des héros
+  const powerstatsList = computed(() => ({
+    intelligence: { label: "Intelligence" },
+    strength: { label: "Strength" },
+    speed: { label: "Speed" },
+    durability: { label: "Durability" },
+    power: { label: "Power" },
+  }));
 </script>
   
-  <style scoped>
+<style scoped>
   .hero-card {
     position: relative;
     width: 200px;
@@ -93,12 +93,14 @@ const powerstatsList = computed(() => ({
       width: var(--progress-width);
     }
   }
+
   .hero-card {
-    display: none; /* Cache complètement l'élément */
+    display: none;
   }
   
+   /* Affiche les détails seulement au hover */
   .hero-card:hover  .hero-card {
-    display: block; /* Affiche leas détails seulement au hover */
+    display: block;
   }
-  </style>
+</style>
   

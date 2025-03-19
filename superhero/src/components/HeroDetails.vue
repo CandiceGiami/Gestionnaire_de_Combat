@@ -50,20 +50,20 @@
   </div>
 </template>
   
-  <script setup>
+<script setup>
   import { defineEmits } from "vue";
 
-  // ✅ Définition des événements émis
+  // Définition des événements émis
   const emit = defineEmits(["close"]);
 
-  // ✅ Fonction pour fermer la popup
+  // Fonction pour fermer la popup
   const handleClose = (event) => {
     if (event.target.classList.contains("hero-details-overlay")) {
       emit("close");
     }
   };
 
-  // ✅ Définition des props directement accessibles dans le template
+  // Définition des props accessibles dans le template
   defineProps({
     hero: Object,
   });
@@ -87,7 +87,7 @@
     padding: 20px;
   }
   
-  /* Conteneur de la popup avec un max-height pour scroll */
+  /* Conteneur de la popup*/
   .hero-details-container {
     background: #1e1e1e;
     color: white;
@@ -199,5 +199,5 @@
     flex-direction: column;
     gap: 15px;
   }
-  </style>
+</style>
   

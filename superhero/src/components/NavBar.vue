@@ -1,29 +1,29 @@
 <template>
-    <nav class="navbar">
-      <ul>
-        <li>
-          <router-link to="/heroes" active-class="active" aria-label="Liste des héros">
-            Liste des Héros
-          </router-link>
-        </li>
-        <li>
-          <router-link to="/" active-class="active" aria-label="Accueil">
-            FIGHT ! 
-          </router-link>
-        </li>
-        <li>
-          <router-link to="/history" active-class="active" aria-label="Historique des combats">
-            Historique des combats
-          </router-link>
-        </li>
-        
-      </ul>
-    </nav>
-  </template>
+  <nav class="navbar">
+    <ul>
+      <li>
+        <router-link to="/heroes" active-class="active" aria-label="Liste des héros">
+          Liste des Héros
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/" active-class="active" aria-label="Accueil">
+          FIGHT ! 
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/history" active-class="active" aria-label="Historique des combats">
+          Historique des combats
+        </router-link>
+      </li>
+      
+    </ul>
+  </nav>
+</template>
   
-  <style>
+<style>
   .navbar {
-    background: #290f33a5; /* Légère transparence */
+    background: #290f33a5;
     padding: 10px 20px;
     display: flex;
     justify-content: center;
@@ -32,7 +32,7 @@
     top: 0;
     left: 0;
     z-index: 1000;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5); /* Ombre sous le menu */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
   }
   
   .navbar ul {
@@ -65,14 +65,5 @@
     background: rgba(255, 255, 255, 0.2);
     border-radius: 5px;
   }
-  
-  @media (max-width: 768px) {
-    .navbar ul {
-      flex-direction: column;
-      text-align: center;
-    }
-    .navbar {
-      padding: 10px;
-    }
-  }
-  </style>
+
+</style>

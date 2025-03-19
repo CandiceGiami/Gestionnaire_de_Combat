@@ -1,3 +1,5 @@
+<!-- Page Historique -->
+
 <template>
   <div class="history-container">
     <h1>Historique des Combats</h1>
@@ -23,12 +25,11 @@
         class="fight-card"
         :class="fight.winner.includes('Player 1') ? 'player1-background' : 'player2-background'"
       >
-        <!-- Titre mis en valeur -->
+        <!-- Titre -->
         <div class="fight-header">
           <span class="winner-text">{{ fight.winner }} 🏆</span>
         </div>
         
-        <!-- Mise en page HORIZONTALE -->
         <div class="fight-content">
           <!-- Joueur 1 -->
           <div class="player player1">
@@ -41,7 +42,7 @@
             </div>
           </div>
 
-          <!-- "VS" Centré -->
+          <!-- "VS" -->
           <div class="vs-container">
             <span class="vs-superhero">VS</span>
           </div>
@@ -70,33 +71,35 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
-import { useHistoryStore } from "@/stores/HistoryStore";
-import { useHeroStore } from "@/stores/HeroStore";
+  import { onMounted } from "vue";
+  import { useHistoryStore } from "@/stores/HistoryStore";
+  import { useHeroStore } from "@/stores/HeroStore";
 
-// 📌 Stores Pinia
-const historyStore = useHistoryStore();
-const heroStore = useHeroStore();
 
-// 🏆 Chargement des héros (uniquement si la liste est vide)
-onMounted(() => {
-  if (heroStore.heroes.length === 0) {
-    heroStore.fetchHeroes();
-  }
-});
+  const historyStore = useHistoryStore();
+  const heroStore = useHeroStore();
 
-// 🎭 Fonction pour récupérer l'image d'un héros par son nom
-const getHeroImage = (heroName) => {
-  const hero = heroStore.heroes.find(
-    (h) => h.name.toLowerCase() === heroName.toLowerCase()
-  );
-  return hero ? hero.images.md : "/default-hero.png"; // Image par défaut si non trouvée
-};
+  // Chargement des héros
+  onMounted(() => {
+    if (heroStore.heroes.length === 0) {
+      heroStore.fetchHeroes();
+    }
+  });
+
+  // Fonction pour récupérer l'image d'un héros par son nom
+  const getHeroImage = (heroName) => {
+    const hero = heroStore.heroes.find(
+      (h) => h.name.toLowerCase() === heroName.toLowerCase()
+    );
+    return hero ? hero.images.md : null
+  };
+
 </script>
 
 
 <style scoped>
-/* ✅ Conteneur principal */
+
+/* Conteneur principal */
 .history-container {
   text-align: center;
   padding: 40px;
@@ -108,14 +111,14 @@ const getHeroImage = (heroName) => {
   font-family: 'Poppins', sans-serif;
 }
 
-/* ✅ Titre */
+/* Titre */
 h1 {
   font-size: 36px;
   font-weight: bold;
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* ✅ Scoreboard */
+/* Scoreboard */
 .scoreboard {
   display: flex;
   justify-content: center;
@@ -163,7 +166,7 @@ h1 {
   font-size: 14px;
 }
 
-/* ✅ VS */
+/* VS */
 .vs-divider {
   font-size: 32px;
   font-weight: bold;
@@ -172,7 +175,7 @@ h1 {
   text-transform: uppercase;
 }
 
-/* ✅ Liste des combats */
+/* Liste des combats */
 .fight-history {
   width: 80%;
   display: flex;
@@ -181,7 +184,7 @@ h1 {
   margin-top: 20px;
 }
 
-/* ✅ Cartes des combats */
+/* Cartes des combats */
 .fight-card {
   padding: 20px;
   border-radius: 15px;
@@ -194,7 +197,7 @@ h1 {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* ✅ Fond */
+/* Fond */
 .player1-background {
   background: linear-gradient(to right, blue, rgb(0, 0, 128));
 }
@@ -203,7 +206,7 @@ h1 {
   background: linear-gradient(to right, red, darkred);
 }
 
-/* ✅ Joueurs et alignement */
+/*  joueurs */
 .fight-content {
   display: flex;
   align-items: center;
@@ -224,7 +227,7 @@ h1 {
   align-items: center;
 }
 
-/* ✅ Style des images */
+/* images */
 .hero-image {
   width: 90px;
   height: 90px;
@@ -233,14 +236,14 @@ h1 {
   box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
 }
 
-/* ✅ Noms et Scores */
+/*  Noms et Scores des heroes */
 .hero-name {
   font-weight: bold;
   font-size: 18px;
-  white-space: nowrap; /* Empêche le retour à la ligne */
+  white-space: nowrap; 
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px; /* Pour que tout rentre bien */
+  max-width: 120px; 
   text-align: center;
 }
 
@@ -262,7 +265,7 @@ h1 {
   box-shadow: 0px 4px 10px rgba(255, 0, 0, 0.4);
 }
 
-/* ✅ "VS" centré */
+/* "VS" */
 .vs-container {
   display: flex;
   align-items: center;
@@ -277,7 +280,7 @@ h1 {
   text-shadow: 2px 2px 8px rgba(255, 215, 0, 0.8);
 }
 
-/* ✅ Bouton RESET stylisé */
+/* Bouton RESET*/
 .reset-btn {
   margin-top: 30px;
   background: linear-gradient(to right, red, darkred);

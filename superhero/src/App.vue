@@ -3,7 +3,7 @@
     <!-- Navigation -->
     <NavBar />
 
-    <!-- Contenu dynamique -->
+    <!-- Contenu dynamique de la page-->
     <main>
       <router-view />
     </main>
@@ -15,7 +15,6 @@ import NavBar from '@/components/NavBar.vue';
 </script>
 
 <style>
-/* Applique une mise en page générale */
 #app {
   font-family: Impact, Haettenschweiler, Arial Narrow Bold, sans-serif;
   text-align: center;
@@ -25,10 +24,9 @@ import NavBar from '@/components/NavBar.vue';
   flex-direction: column;
 }
 
-/* Le contenu est en dessous de la navbar */
 main {
   flex: 1;
-  margin-top: 60px; /* Ajuste selon la hauteur de ta navbar */
+  margin-top: 60px;
   padding: 20px;
 }
 </style>
