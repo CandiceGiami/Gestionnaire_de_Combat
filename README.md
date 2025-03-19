@@ -84,6 +84,9 @@ Nous avons envisagé plusieurs évolutions pour enrichir l’application à l’
 - **Personnalisation des héros** avec des skins et des compétences évolutives.
 - **Effets sonores et animations avancées** pour renforcer l’expérience immersive des combats.
 
+## API
+https://akabab.github.io/superhero-api/api/
+
 ## ❤️ Remerciements
 Ce projet a été une aventure passionnante ! 
 
