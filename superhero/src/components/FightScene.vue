@@ -55,7 +55,7 @@
 
 <script>
 import HeroCard from "@/components/HeroCard.vue";
-import { useHistoryStore } from "@/stores/HistoryStore"; // Import du store Pinia
+import { useHistoryStore } from "@/stores/HistoryStore";
 
 export default {
   components: { HeroCard },
@@ -73,8 +73,14 @@ export default {
       randomPlayer1Score: 0,
       randomPlayer2Score: 0,
       fightBarColor: "red",
-      indicatorWidth: "50%", // Position initiale
-      isFinalizing: false, // Indique si l'animation finale est en cours
+      indicatorWidth: "50%",
+      isFinalizing: false,
+      fightStarted: false,            // Indicateur pour savoir si le combat a été lancé
+      finalizeTimeout: null,         // Référence du timeout de finalisation
+      resultsTimeout: null,          // Référence du timeout d’affichage des résultats
+      statInterval: null,            // Référence de l’intervalle d’animation des stats
+      scoreInterval: null,           // Référence de l’intervalle d’animation des scores
+      fightBarTimeouts: [],          // Tableau des timeouts de la fight-bar
     };
   },
   computed: {
@@ -99,53 +105,88 @@ export default {
         background: this.winnerColor,
         transition: this.isFinalizing ? "width 2s ease-in-out" : "width 1s ease-in-out",
       };
-    }
+    },
+  },
+  watch: {
+    // Dès que les deux joueurs sont définis, on lance l'animation du combat
+    player1(newVal) {
+      if (newVal && this.player2 && !this.fightStarted) {
+        this.fightStarted = true;
+        this.startFightAnimation();
+      }
+    },
+    player2(newVal) {
+      if (newVal && this.player1 && !this.fightStarted) {
+        this.fightStarted = true;
+        this.startFightAnimation();
+      }
+    },
   },
   methods: {
-    // ✅ Arrête tous les sons en une seule fonction
+    // Arrête tous les sons en cours
     stopAllSounds() {
       if (this.fightAudio) {
         this.fightAudio.pause();
         this.fightAudio.currentTime = 0;
         this.fightAudio = null;
+        console.log("⏹️ Arrêt de la musique de combat");
       }
       if (this.victoryAudio) {
         this.victoryAudio.pause();
         this.victoryAudio.currentTime = 0;
         this.victoryAudio = null;
+        console.log("⏹️ Arrêt de la musique de victoire");
       }
     },
-
-    // ✅ Relance un combat proprement
+    // Relance un combat proprement
     restartFight() {
-      this.stopAllSounds(); // ✅ Arrête tous les sons avant de reset
-
-      this.indicatorWidth = "50%"; // 🔥 Remet la barre au centre
-      this.isFinalizing = false; // 🔥 Permet de refaire l'animation correctement
-      this.showResults = false; // 🔥 Cache les résultats
-      this.fightBarColor = "red"; // 🔥 Réinitialise la couleur de la barre
-
-      this.$emit("restart"); // Émet un événement pour redémarrer la sélection
-
-      setTimeout(() => {
-        this.startFightAnimation(); // 🔥 Relance complètement l'animation
-      }, 500); // Petite pause pour éviter un bug visuel
+      console.log("🔄 Restart cliqué : réinitialisation du combat en cours");
+      this.stopAllSounds(); // Coupe les sons actuels
+      // Annule les animations en cours (barre, scores, stats) du combat précédent
+      if (this.finalizeTimeout) {
+        clearTimeout(this.finalizeTimeout);
+        this.finalizeTimeout = null;
+      }
+      if (this.resultsTimeout) {
+        clearTimeout(this.resultsTimeout);
+        this.resultsTimeout = null;
+      }
+      if (this.statInterval) {
+        clearInterval(this.statInterval);
+        this.statInterval = null;
+      }
+      if (this.scoreInterval) {
+        clearInterval(this.scoreInterval);
+        this.scoreInterval = null;
+      }
+      if (this.fightBarTimeouts && this.fightBarTimeouts.length) {
+        this.fightBarTimeouts.forEach((timeout) => clearTimeout(timeout));
+        this.fightBarTimeouts = [];
+      }
+      // Réinitialise les indicateurs et le texte de victoire
+      this.winnerText = "";
+      this.fightStarted = false;
+      this.indicatorWidth = "50%";
+      this.isFinalizing = false;
+      this.showResults = false;
+      this.fightBarColor = "red";
+      this.$emit("restart"); // Émet un événement pour retourner à la sélection
+      // Pas de relance automatique du combat pour éviter de redémarrer la musique
     },
-
-    // ✅ Lancement du combat
+    // Lancement du combat
     startFightAnimation() {
-      this.stopAllSounds(); // ✅ Assure que rien ne joue en double
-
+      this.stopAllSounds(); // S'assure qu'aucun son précédent ne continue
+      // Démarre le son de combat
       this.fightAudio = new Audio("/sounds/fight.mp3");
       this.fightAudio.play();
-
-      this.indicatorWidth = "50%"; // 🔥 Remet la barre au centre avant chaque combat
-      this.isFinalizing = false; // 🔥 Permet de relancer l'animation
-
+      console.log("🎵 Musique de combat lancée");
+      // Réinitialise l'état de l'animation
+      this.indicatorWidth = "50%";
+      this.isFinalizing = false;
+      // Effet d'apparition de la scène
       const scene = document.querySelector(".fight-scene");
       if (scene) {
         scene.classList.add("appear");
-
         setTimeout(() => {
           scene.classList.add("shake");
           setTimeout(() => {
@@ -153,84 +194,82 @@ export default {
           }, 800);
         }, 500);
       }
-
+      // Lance les animations de stats, de scores et de la barre de combat
       this.animateStats();
       this.animateScores();
       this.animateFightBar();
-
-      // ⚡ La barre commence à se remplir doucement à 13s
-      setTimeout(() => {
+      // Programme la finalisation de la fight-bar à 13s
+      this.finalizeTimeout = setTimeout(() => {
         this.finalizeFightBar();
       }, 13000);
-
-      // ⚡ Affichage du vainqueur à 15s et enregistrement
-      setTimeout(() => {
+      // Affiche le vainqueur et enregistre le combat à 15s
+      this.resultsTimeout = setTimeout(() => {
         this.showResults = true;
         this.displayWinner();
         this.saveFightToHistory();
       }, 15000);
     },
-
-    // ✅ Animation des stats en live
+    // Animation des stats en direct
     animateStats() {
-      const interval = setInterval(() => {
+      this.statInterval = setInterval(() => {
         if (this.showResults) {
-          clearInterval(interval);
+          clearInterval(this.statInterval);
+          this.statInterval = null;
         }
         this.$forceUpdate();
       }, 100);
     },
-
-    // ✅ Animation des scores avec valeurs aléatoires
+    // Animation des scores avec des valeurs aléatoires
     animateScores() {
-      const interval = setInterval(() => {
+      this.scoreInterval = setInterval(() => {
         if (this.showResults) {
-          clearInterval(interval);
+          clearInterval(this.scoreInterval);
+          this.scoreInterval = null;
         }
         this.randomPlayer1Score = Math.floor(Math.random() * 600);
         this.randomPlayer2Score = Math.floor(Math.random() * 600);
       }, 100);
     },
-
-    // ✅ Animation dynamique de la fight-bar
+    // Animation dynamique de la fight-bar
     animateFightBar() {
       let counter = 0;
-      this.isFinalizing = false; // 🔥 Assure que l'animation peut bien repartir
-      this.indicatorWidth = "50%"; // 🔥 Remet la barre au centre pour la relancer
-
+      this.isFinalizing = false;
+      this.indicatorWidth = "50%";
+      this.fightBarTimeouts = []; // Réinitialise les timeouts de barre de combat stockés
+      console.log("⚔️ Oscillation de la barre de combat lancée");
       const changeBar = () => {
-        if (this.showResults || this.isFinalizing) return; // 🔄 Stoppe l'animation une fois le combat fini
-
-        let randomPercentage = 30 + Math.random() * 40; // Valeur entre 30% et 70%
+        if (this.showResults || this.isFinalizing) return;
+        let randomPercentage = 30 + Math.random() * 40; // pourcentage entre 30% et 70%
         this.indicatorWidth = `${randomPercentage}%`;
-
         counter++;
         if (counter < 40) {
-          setTimeout(changeBar, Math.random() * 400 + 100);
+          const t = setTimeout(changeBar, Math.random() * 400 + 100);
+          this.fightBarTimeouts.push(t);
         }
       };
-
-      setTimeout(changeBar, 500); // 🔥 Assure que l'animation démarre après une courte pause
+      // Démarre l'oscillation de la barre après une courte pause
+      const firstTimeout = setTimeout(changeBar, 500);
+      this.fightBarTimeouts.push(firstTimeout);
     },
-
-    // ✅ Finalisation de la barre de combat
+    // Finalisation de la barre de combat (remplissage côté vainqueur)
     finalizeFightBar() {
-      this.isFinalizing = true; // 🔥 Active une transition fluide
-      this.indicatorWidth = this.player1Score > this.player2Score ? "100%" : "0%";
-      this.fightBarColor = this.player1Score > this.player2Score ? "blue" : "red"; // 🔥 Change la couleur vers le gagnant
+      this.isFinalizing = true;
+      this.indicatorWidth =
+        this.player1Score > this.player2Score ? "100%" : "0%";
+      this.fightBarColor = this.player1Score > this.player2Score ? "blue" : "red";
+      console.log("⚔️ Barre de combat finalisée du côté du vainqueur");
     },
-
-    // ✅ Affichage du vainqueur avec le son
+    // Affichage du vainqueur avec le son de victoire
     displayWinner() {
-      this.stopAllSounds(); // ✅ Assure que le son ne se superpose pas
-
+      this.stopAllSounds(); // Coupe le son de combat avant de jouer le son de victoire
       this.victoryAudio = new Audio("/sounds/victoire.mp3");
       this.victoryAudio.play();
-
-      this.winnerText = this.player1Score > this.player2Score ? "Player 1 VICTORY" : "Player 2 VICTORY";
+      console.log("🎉 Musique de victoire lancée");
+      this.winnerText =
+        this.player1Score > this.player2Score ? "Player 1 WIN" : "Player 2 WIN";
+      console.log("🏆 Vainqueur :", this.winnerText);
     },
-
-    // ✅ Sauvegarde des résultats dans l’historique
+    // Enregistre le résultat du combat dans l’historique
     saveFightToHistory() {
       this.historyStore.addFight(
         this.winnerText,
@@ -239,56 +278,70 @@ export default {
         this.player1Score,
         this.player2Score
       );
+      console.log(
+        `💾 Combat enregistré : ${this.player1.name} (${this.player1Score}) vs ${this.player2.name} (${this.player2Score}) - Vainqueur : ${this.winnerText}`
+      );
     },
-
-    // ✅ Style des barres de stats
+    // Style des barres de stats (largeur dynamique)
     getStatBarStyle(player, key) {
       return {
         width: this.showResults
-          ? `${(parseInt(this[player].powerstats[key]) || 0)}%`
+          ? `${parseInt(this[player].powerstats[key]) || 0}%`
           : `${Math.floor(Math.random() * 100)}%`,
         background: "yellow",
         transition: this.showResults ? "width 1s ease-in-out" : "none",
       };
     },
-
-    // ✅ Affichage dynamique des stats
+    // Affichage des valeurs de stats (aléatoires ou finales)
     displayStatPlayer1(key) {
-      return this.showResults ? this.player1.powerstats[key] || 0 : Math.floor(Math.random() * 100);
+      return this.showResults
+        ? this.player1.powerstats[key] || 0
+        : Math.floor(Math.random() * 100);
     },
     displayStatPlayer2(key) {
-      return this.showResults ? this.player2.powerstats[key] || 0 : Math.floor(Math.random() * 100);
+      return this.showResults
+        ? this.player2.powerstats[key] || 0
+        : Math.floor(Math.random() * 100);
     },
-
-    // ✅ Couleurs des stats
+    // Attribution des classes CSS aux stats pour colorer gagnant/perdant
     getStatClass(playerValue, opponentValue) {
       if (!this.showResults) return "";
-      if ((parseInt(playerValue) || 0) > (parseInt(opponentValue) || 0)) return "stat-win";
-      if ((parseInt(playerValue) || 0) < (parseInt(opponentValue) || 0)) return "stat-lose";
+      if ((parseInt(playerValue) || 0) > (parseInt(opponentValue) || 0))
+        return "stat-win";
+      if ((parseInt(playerValue) || 0) < (parseInt(opponentValue) || 0))
+        return "stat-lose";
       return "";
     },
-
-    // ✅ Calcul du score total d'un héros
+    // Calcule le score total (somme des powerstats) d'un héros
     calculateTotalScore(hero) {
       if (!hero || !hero.powerstats) return 0;
-      return Object.values(hero.powerstats).reduce((sum, val) => sum + (parseInt(val) || 0), 0);
-    }
+      return Object.values(hero.powerstats).reduce(
+        (sum, val) => sum + (parseInt(val) || 0),
+        0
+      );
+    },
   },
-
-  // ✅ Arrêt du son si on quitte la scène
+  // Arrête sons et animations si on quitte la scène
   beforeUnmount() {
     this.stopAllSounds();
+    if (this.finalizeTimeout) clearTimeout(this.finalizeTimeout);
+    if (this.resultsTimeout) clearTimeout(this.resultsTimeout);
+    if (this.statInterval) clearInterval(this.statInterval);
+    if (this.scoreInterval) clearInterval(this.scoreInterval);
+    if (this.fightBarTimeouts && this.fightBarTimeouts.length) {
+      this.fightBarTimeouts.forEach((timeout) => clearTimeout(timeout));
+    }
+    const scene = document.querySelector(".fight-scene");
+    if (scene) scene.classList.remove("appear");
   },
-
+  // Démarre le combat automatiquement si les joueurs sont déjà sélectionnés au montage du composant
   mounted() {
     if (this.player1 && this.player2) {
       this.startFightAnimation();
     }
-  }
+  },
 };
 </script>
-
-
 
 <style scoped>
 /* ====================== STYLE DE LA SCÈNE ====================== */

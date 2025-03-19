@@ -1,16 +1,17 @@
-import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import vueDevTools from 'vite-plugin-vue-devtools';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
+  plugins: [vue()], // Support for Vue.js
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@': resolve(dirname(fileURLToPath(import.meta.url)), 'src'), // Resolves to the src directory
     },
+  },
+  test: {
+    environment: 'jsdom', // Simulates the DOM for tests
+    globals: true, // Enables global variables like describe, it, expect
   },
 });
