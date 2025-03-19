@@ -27,12 +27,15 @@ Le projet a été développé en collaboration entre **Joe** et **Candice**, cha
 
 - **Joe** :
   - Développement de la structure des composants Vue.js.
-  - Implémentation des comoposants permettant de consulter les héros et la realisation des combats.
+  - Implémentation des composants permettant de consulter les héros
+  - Implémentation des composants permettant la realisation des combats.
   - Proposition d’une première version fonctionnelle de ces pages.
+  -  Ajout des tests unitaires.
 
 - **Candice** :
   - Amélioration du design dans tous les composants et intégration des animations pour une meilleure expérience utilisateur.
   - Développement de la page d’historique des combats.
+  - Développement de la page biblioteque des heros.
   - Ajustements UX/UI pour une navigation plus fluide et attrayante.
 
 ## 🛠 Organisation du travail
