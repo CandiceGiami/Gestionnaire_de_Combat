@@ -25,22 +25,18 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "vue";
+<script setup>
 import { useHeroStore } from "@/stores/HeroStore";
 
-export default defineComponent({
-  setup() {
-    const heroStore = useHeroStore();
+// ✅ Utilisation du store directement
+const heroStore = useHeroStore();
 
-    const closePopup = () => {
-      heroStore.selectedHero = null;
-    };
-
-    return { heroStore, closePopup };
-  },
-});
+// ✅ Fonction pour fermer la popup
+const closePopup = () => {
+  heroStore.selectedHero = null;
+};
 </script>
+
 
 <style scoped>
 </style>

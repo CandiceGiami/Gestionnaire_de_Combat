@@ -1,46 +1,62 @@
-<script>
-export default {
-  props: {
-    hero: Object,
-    isHovered: Boolean,
-    isSelected: Boolean,
-  },
-  data() {
-    return {
-      animatedStats: {
-        intelligence: 0,
-        strength: 0,
-        speed: 0,
-        durability: 0,
-        power: 0,
-      },
+<script setup>
+import { ref, watch, defineProps, defineEmits } from "vue";
+
+// ✅ Définition des props
+const props = defineProps({
+  hero: Object,
+  isHovered: Boolean,
+  isSelected: Boolean,
+});
+
+// ✅ Définition des événements émis
+const emit = defineEmits(["hover", "select"]);
+
+// ✅ États réactifs pour l'animation des stats
+const animatedStats = ref({
+  intelligence: 0,
+  strength: 0,
+  speed: 0,
+  durability: 0,
+  power: 0,
+});
+
+// ✅ Fonction pour démarrer l'animation des stats
+const startAnimation = () => {
+  emit("hover", props.hero.id);
+  
+  setTimeout(() => {
+    animatedStats.value = {
+      intelligence: props.hero.powerstats.intelligence,
+      strength: props.hero.powerstats.strength,
+      speed: props.hero.powerstats.speed,
+      durability: props.hero.powerstats.durability,
+      power: props.hero.powerstats.power,
     };
-  },
-  methods: {
-    startAnimation() {
-      this.$emit("hover", this.hero.id);
-      setTimeout(() => {
-        this.animatedStats.intelligence = this.hero.powerstats.intelligence;
-        this.animatedStats.strength = this.hero.powerstats.strength;
-        this.animatedStats.speed = this.hero.powerstats.speed;
-        this.animatedStats.durability = this.hero.powerstats.durability;
-        this.animatedStats.power = this.hero.powerstats.power;
-      }, 100);
-    },
-    resetAnimation() {
-      this.$emit("hover", null);
-      this.animatedStats.intelligence = 0;
-      this.animatedStats.strength = 0;
-      this.animatedStats.speed = 0;
-      this.animatedStats.durability = 0;
-      this.animatedStats.power = 0;
-    },
-    selectHero() {
-      this.$emit("select", this.hero);
-    },
-  },
+  }, 100);
 };
+
+// ✅ Fonction pour réinitialiser l'animation des stats
+const resetAnimation = () => {
+  emit("hover", null);
+  animatedStats.value = {
+    intelligence: 0,
+    strength: 0,
+    speed: 0,
+    durability: 0,
+    power: 0,
+  };
+};
+
+// ✅ Fonction pour sélectionner le héros
+const selectHero = () => {
+  emit("select", props.hero);
+};
+
+// ✅ Surveille le changement de héros et réinitialise si besoin
+watch(() => props.hero, () => resetAnimation());
+
 </script>
+
 
 <template>
   <div

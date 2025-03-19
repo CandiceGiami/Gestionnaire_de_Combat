@@ -1,13 +1,13 @@
 <template>
   <div class="hero-card">
     <!-- Détails affichés au hover -->
-    <div v-if="isHovered && hero.powerstats" class="hero-details">
+    <div v-if="isHovered && hero?.powerstats" class="hero-details">
       <div v-for="(stat, key) in powerstatsList" :key="key" class="stat">
         <span>{{ stat.label }}:</span>
         <div class="bar">
           <div
             class="progress"
-            :style="{ width: (hero.powerstats[key] || 0) + '%' }"
+            :style="{ width: (hero?.powerstats?.[key] || 0) + '%' }"
           ></div>
         </div>
       </div>
@@ -15,24 +15,23 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    hero: Object,
-    isHovered: Boolean,
-  },
-  computed: {
-    powerstatsList() {
-      return {
-        intelligence: { label: "Intelligence" },
-        strength: { label: "Strength" },
-        speed: { label: "Speed" },
-        durability: { label: "Durability" },
-        power: { label: "Power" },
-      };
-    },
-  },
-};
+<script setup>
+import { computed } from "vue";
+
+// ✅ Déclaration propre des props avec `defineProps`
+const { hero, isHovered } = defineProps({
+  hero: Object,
+  isHovered: Boolean,
+});
+
+// ✅ Définition des statistiques des héros
+const powerstatsList = computed(() => ({
+  intelligence: { label: "Intelligence" },
+  strength: { label: "Strength" },
+  speed: { label: "Speed" },
+  durability: { label: "Durability" },
+  power: { label: "Power" },
+}));
 </script>
   
   <style scoped>

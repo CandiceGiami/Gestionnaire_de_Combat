@@ -29,99 +29,94 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from "vue";
 import { useHeroStore } from "@/stores/HeroStore";
-import { computed, ref, onMounted } from "vue";
 import HeroCard from "@/components/HeroCard.vue";
 import HeroDetails from "@/components/HeroDetails.vue";
 
-export default {
-  components: { HeroCard, HeroDetails },
-  setup() {
-    const heroStore = useHeroStore();
-    const searchQuery = ref("");
-    const selectedPublisher = ref("");
-    const sortOption = ref("name-asc");
-    const selectedHero = ref(null);
+// 📌 Store des héros
+const heroStore = useHeroStore();
 
-    const heroes = computed(() => heroStore.heroes);
+// 🔍 Filtres & recherche
+const searchQuery = ref("");
+const selectedPublisher = ref("");
+const sortOption = ref("name-asc");
 
-    const publishers = computed(() => {
-      const uniquePublishers = new Set(
-        heroes.value.map((h) => h.biography.publisher).filter(Boolean)
-      );
-      return [...uniquePublishers].sort();
-    });
+// 📌 Héros sélectionné (affiché dans HeroDetails)
+const selectedHero = ref(null);
 
-    const filteredHeroes = computed(() => {
-      let result = [...heroes.value];
+// 🎯 Liste complète des héros
+const heroes = computed(() => heroStore.heroes);
 
-      // Filtre par recherche
-      if (searchQuery.value) {
-        result = result.filter((hero) =>
-          hero.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-        );
-      }
+// 🎭 Liste des éditeurs uniques (pour le menu déroulant)
+const publishers = computed(() => {
+  const uniquePublishers = new Set(
+    heroes.value.map((h) => h.biography.publisher).filter(Boolean)
+  );
+  return [...uniquePublishers].sort();
+});
 
-      // Filtre par éditeur
-      if (selectedPublisher.value) {
-        result = result.filter(
-          (hero) => hero.biography.publisher === selectedPublisher.value
-        );
-      }
-
-      // Tri des résultats
-      result.sort((a, b) => {
-        if (sortOption.value === "name-asc") return a.name.localeCompare(b.name);
-        if (sortOption.value === "name-desc") return b.name.localeCompare(a.name);
-        
-        const scoreA = calculateHeroScore(a);
-        const scoreB = calculateHeroScore(b);
-
-        if (sortOption.value === "score-asc") return scoreA - scoreB;
-        if (sortOption.value === "score-desc") return scoreB - scoreA;
-
-        return 0;
-      });
-
-      return result;
-    });
-
-    // Fonction pour calculer le score total d'un héros
-    const calculateHeroScore = (hero) => {
-      return (
-        (parseInt(hero.powerstats.intelligence) || 0) +
-        (parseInt(hero.powerstats.strength) || 0) +
-        (parseInt(hero.powerstats.speed) || 0) +
-        (parseInt(hero.powerstats.durability) || 0) +
-        (parseInt(hero.powerstats.power) || 0) +
-        (parseInt(hero.powerstats.combat) || 0)
-      );
-    };
-
-    const showDetails = (hero) => {
-      selectedHero.value = hero;
-    };
-
-    onMounted(() => {
-      if (heroStore.heroes.length === 0) {
-        heroStore.fetchHeroes();
-      }
-    });
-
-    return {
-      searchQuery,
-      selectedPublisher,
-      sortOption,
-      filteredHeroes,
-      publishers,
-      selectedHero,
-      showDetails,
-    };
-  },
+// 🏆 Calcul du score d’un héros
+const calculateHeroScore = (hero) => {
+  return (
+    (parseInt(hero.powerstats.intelligence) || 0) +
+    (parseInt(hero.powerstats.strength) || 0) +
+    (parseInt(hero.powerstats.speed) || 0) +
+    (parseInt(hero.powerstats.durability) || 0) +
+    (parseInt(hero.powerstats.power) || 0) +
+    (parseInt(hero.powerstats.combat) || 0)
+  );
 };
 
+// 🔥 Filtrage & Tri des héros
+const filteredHeroes = computed(() => {
+  let result = [...heroes.value];
+
+  // Filtre par recherche
+  if (searchQuery.value) {
+    result = result.filter((hero) =>
+      hero.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+  }
+
+  // Filtre par éditeur
+  if (selectedPublisher.value) {
+    result = result.filter(
+      (hero) => hero.biography.publisher === selectedPublisher.value
+    );
+  }
+
+  // Tri des résultats
+  result.sort((a, b) => {
+    if (sortOption.value === "name-asc") return a.name.localeCompare(b.name);
+    if (sortOption.value === "name-desc") return b.name.localeCompare(a.name);
+    
+    const scoreA = calculateHeroScore(a);
+    const scoreB = calculateHeroScore(b);
+
+    if (sortOption.value === "score-asc") return scoreA - scoreB;
+    if (sortOption.value === "score-desc") return scoreB - scoreA;
+
+    return 0;
+  });
+
+  return result;
+});
+
+// 📌 Ouvre les détails d’un héros
+const showDetails = (hero) => {
+  selectedHero.value = hero;
+};
+
+// 🛠️ Charge les héros au montage si besoin
+onMounted(() => {
+  if (heroStore.heroes.length === 0) {
+    heroStore.fetchHeroes();
+  }
+});
 </script>
+
 
 <style scoped>
 /* ========== TITRE ========== */

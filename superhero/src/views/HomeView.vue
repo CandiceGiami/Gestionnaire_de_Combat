@@ -13,20 +13,30 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
-import { useHeroStore } from '@/stores/HeroStore';
-import AffichageHero from '@/components/AffichageHero.vue';
-import FightScene from '@/components/FightScene.vue';
+import { computed, onMounted } from "vue";
+import { useHeroStore } from "@/stores/HeroStore";
+import AffichageHero from "@/components/AffichageHero.vue";
+import FightScene from "@/components/FightScene.vue";
 
+// 📌 Store des héros
 const heroStore = useHeroStore();
+
+// 📊 Variables réactives
 const heroes = computed(() => heroStore.heroes);
 const loading = computed(() => heroStore.loading);
 
-onMounted(() => {
+// 🚀 Chargement des héros
+onMounted(async () => {
   console.log("🔄 Chargement des héros...");
-  heroStore.fetchHeroes(); // ✅ Nouvelle méthode adaptée à la nouvelle API
+  try {
+    await heroStore.fetchHeroes(); // ✅ Sécurisé avec `await`
+    console.log("✅ Héros chargés avec succès !");
+  } catch (error) {
+    console.error("❌ Erreur lors du chargement des héros :", error);
+  }
 });
 </script>
+
 
 <style scoped>
 h1 {

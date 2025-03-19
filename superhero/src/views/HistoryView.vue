@@ -69,27 +69,31 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { onMounted } from "vue";
 import { useHistoryStore } from "@/stores/HistoryStore";
 import { useHeroStore } from "@/stores/HeroStore";
 
-export default {
-  setup() {
-    const historyStore = useHistoryStore();
-    const heroStore = useHeroStore();
+// 📌 Stores Pinia
+const historyStore = useHistoryStore();
+const heroStore = useHeroStore();
 
-    heroStore.fetchHeroes(); // Charger les héros
-
-    // Fonction pour récupérer l'image du héros par son nom
-    const getHeroImage = (heroName) => {
-      const hero = heroStore.heroes.find(h => h.name.toLowerCase() === heroName.toLowerCase());
-      return hero ? hero.images.md : "/default-hero.png"; // Image par défaut si non trouvée
-    };
-
-    return { historyStore, getHeroImage };
+// 🏆 Chargement des héros (uniquement si la liste est vide)
+onMounted(() => {
+  if (heroStore.heroes.length === 0) {
+    heroStore.fetchHeroes();
   }
+});
+
+// 🎭 Fonction pour récupérer l'image d'un héros par son nom
+const getHeroImage = (heroName) => {
+  const hero = heroStore.heroes.find(
+    (h) => h.name.toLowerCase() === heroName.toLowerCase()
+  );
+  return hero ? hero.images.md : "/default-hero.png"; // Image par défaut si non trouvée
 };
 </script>
+
 
 <style scoped>
 /* ✅ Conteneur principal */

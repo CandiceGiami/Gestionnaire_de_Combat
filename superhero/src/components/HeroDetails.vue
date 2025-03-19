@@ -1,67 +1,73 @@
 <template>
-    <div v-if="hero" class="hero-details-overlay" @click.self="$emit('close')">
-      <div class="hero-details-container">
-        <button class="close-btn" @click="$emit('close')">&times;</button>
-  
-        <div class="hero-header">
-          <img :src="hero.images.md" :alt="hero.name" class="hero-image" />
-          <h2 class="hero-name">{{ hero.name }}</h2>
-          <p class="publisher">{{ hero.biography.publisher || 'Inconnu' }} - {{ hero.biography.alignment || 'Neutre' }}</p>
+  <div v-if="hero" class="hero-details-overlay" @click="handleClose">
+    <div class="hero-details-container">
+      <button class="close-btn" @click="emit('close')">&times;</button>
+
+      <div class="hero-header">
+        <img :src="hero.images.md" :alt="hero.name" class="hero-image" />
+        <h2 class="hero-name">{{ hero.name }}</h2>
+        <p class="publisher">
+          {{ hero.biography.publisher || "Inconnu" }} - 
+          {{ hero.biography.alignment || "Neutre" }}
+        </p>
+      </div>
+
+      <div class="hero-sections">
+        <div class="hero-stats">
+          <h3>Statistiques</h3>
+          <ul>
+            <li><strong>Intelligence:</strong> {{ hero.powerstats.intelligence }}</li>
+            <li><strong>Force:</strong> {{ hero.powerstats.strength }}</li>
+            <li><strong>Vitesse:</strong> {{ hero.powerstats.speed }}</li>
+            <li><strong>Durabilité:</strong> {{ hero.powerstats.durability }}</li>
+            <li><strong>Puissance:</strong> {{ hero.powerstats.power }}</li>
+            <li><strong>Combat:</strong> {{ hero.powerstats.combat }}</li>
+          </ul>
         </div>
-  
-        <div class="hero-sections">
-          <div class="hero-stats">
-            <h3>Statistiques</h3>
-            <ul>
-              <li><strong>Intelligence:</strong> {{ hero.powerstats.intelligence }}</li>
-              <li><strong>Force:</strong> {{ hero.powerstats.strength }}</li>
-              <li><strong>Vitesse:</strong> {{ hero.powerstats.speed }}</li>
-              <li><strong>Durabilité:</strong> {{ hero.powerstats.durability }}</li>
-              <li><strong>Puissance:</strong> {{ hero.powerstats.power }}</li>
-              <li><strong>Combat:</strong> {{ hero.powerstats.combat }}</li>
-            </ul>
-          </div>
-  
-          <div class="hero-details">
-            <h3>Apparence</h3>
-            <p><strong>Taille:</strong> {{ hero.appearance.height[1] || 'Inconnu' }}</p>
-            <p><strong>Poids:</strong> {{ hero.appearance.weight[1] || 'Inconnu' }}</p>
-            <p><strong>Cheveux:</strong> {{ hero.appearance.hairColor || 'Inconnu' }}</p>
-            <p><strong>Yeux:</strong> {{ hero.appearance.eyeColor || 'Inconnu' }}</p>
-          </div>
-  
-          <div class="hero-details">
-            <h3>Biographie</h3>
-            <p><strong>Nom complet:</strong> {{ hero.biography.fullName || 'Inconnu' }}</p>
-            <p><strong>Alias:</strong> {{ hero.biography.aliases?.join(', ') || 'Aucun alias' }}</p>
-            <p><strong>Lieu de naissance:</strong> {{ hero.biography.placeOfBirth || 'Inconnu' }}</p>
-          </div>
-  
-          <div class="hero-details">
-            <h3>Affiliations & Connexions</h3>
-            <p><strong>Équipe:</strong> {{ hero.connections.groupAffiliation || 'Aucune' }}</p>
-            <p><strong>Relations:</strong> {{ hero.connections.relatives || 'Aucune information' }}</p>
-          </div>
+
+        <div class="hero-details">
+          <h3>Apparence</h3>
+          <p><strong>Taille:</strong> {{ hero.appearance.height[1] || "Inconnu" }}</p>
+          <p><strong>Poids:</strong> {{ hero.appearance.weight[1] || "Inconnu" }}</p>
+          <p><strong>Cheveux:</strong> {{ hero.appearance.hairColor || "Inconnu" }}</p>
+          <p><strong>Yeux:</strong> {{ hero.appearance.eyeColor || "Inconnu" }}</p>
+        </div>
+
+        <div class="hero-details">
+          <h3>Biographie</h3>
+          <p><strong>Nom complet:</strong> {{ hero.biography.fullName || "Inconnu" }}</p>
+          <p><strong>Alias:</strong> {{ hero.biography.aliases?.join(", ") || "Aucun alias" }}</p>
+          <p><strong>Lieu de naissance:</strong> {{ hero.biography.placeOfBirth || "Inconnu" }}</p>
+        </div>
+
+        <div class="hero-details">
+          <h3>Affiliations & Connexions</h3>
+          <p><strong>Équipe:</strong> {{ hero.connections.groupAffiliation || "Aucune" }}</p>
+          <p><strong>Relations:</strong> {{ hero.connections.relatives || "Aucune information" }}</p>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
   
-  <script>
-  export default {
-    props: {
-      hero: Object,
-    },
-    methods: {
-      handleClose(event) {
-        // Vérifie si l'élément cliqué est bien l'overlay et pas l'intérieur de la popup
-        if (event.target.classList.contains("hero-details-overlay")) {
-          this.$emit("close");
-        }
-      },
-    },
+  <script setup>
+  import { defineEmits } from "vue";
+
+  // ✅ Définition des événements émis
+  const emit = defineEmits(["close"]);
+
+  // ✅ Fonction pour fermer la popup
+  const handleClose = (event) => {
+    if (event.target.classList.contains("hero-details-overlay")) {
+      emit("close");
+    }
   };
-  </script>
+
+  // ✅ Définition des props directement accessibles dans le template
+  defineProps({
+    hero: Object,
+  });
+</script>
   
   
   <style scoped>

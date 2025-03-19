@@ -81,126 +81,117 @@
 
 
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from "vue";
 import { useHeroStore } from "@/stores/HeroStore";
-import { computed, onMounted, ref } from "vue";
 import HeroCard from "@/components/HeroCard.vue";
 import FightScene from "@/components/FightScene.vue";
 
-export default {
-  components: { HeroCard, FightScene },
-  setup() {
-    const heroStore = useHeroStore();
-    const heroes = computed(() => heroStore.heroes);
-    const hoveredHero = ref(null);
-    const selectedPlayer1 = ref(null);
-    const selectedPlayer2 = ref(null);
-    const battleStarted = ref(false);
+// ✅ Store des héros
+const heroStore = useHeroStore();
+const heroes = computed(() => heroStore.heroes);
 
-    const canFight = computed(() => selectedPlayer1.value && selectedPlayer2.value);
+// ✅ État pour la sélection des héros
+const hoveredHero = ref(null);
+const selectedPlayer1 = ref(null);
+const selectedPlayer2 = ref(null);
+const battleStarted = ref(false);
 
-    const searchQueryPlayer1 = ref("");
-    const searchQueryPlayer2 = ref("");
-    const showFilterMenuPlayer1 = ref(false);
-    const showFilterMenuPlayer2 = ref(false);
+// ✅ Détermine si on peut lancer le combat
+const canFight = computed(() => selectedPlayer1.value && selectedPlayer2.value);
 
-    const toggleFilterMenu = (player) => {
-      if (player === "player1") {
-        showFilterMenuPlayer1.value = !showFilterMenuPlayer1.value;
-        showFilterMenuPlayer2.value = false;
-      } else {
-        showFilterMenuPlayer2.value = !showFilterMenuPlayer2.value;
-        showFilterMenuPlayer1.value = false;
-      }
-    };
+// ✅ Recherche et filtres
+const searchQueryPlayer1 = ref("");
+const searchQueryPlayer2 = ref("");
+const showFilterMenuPlayer1 = ref(false);
+const showFilterMenuPlayer2 = ref(false);
 
-    const sortOptionPlayer1 = ref({ type: "name", order: "asc" });
-    const sortOptionPlayer2 = ref({ type: "name", order: "asc" });
+// ✅ Fonction pour basculer l'affichage des filtres
+const toggleFilterMenu = (player) => {
+  if (player === "player1") {
+    showFilterMenuPlayer1.value = !showFilterMenuPlayer1.value;
+    showFilterMenuPlayer2.value = false;
+  } else {
+    showFilterMenuPlayer2.value = !showFilterMenuPlayer2.value;
+    showFilterMenuPlayer1.value = false;
+  }
+};
 
-    const filteredHeroes = (query, sortOption) => {
-      return [...heroes.value]
-        .filter((hero) =>
-          hero.name.toLowerCase().includes(query.value.toLowerCase())
-        )
-        .sort((a, b) => sortFunction(a, b, sortOption.value));
-    };
+// ✅ Options de tri par défaut
+const sortOptionPlayer1 = ref({ type: "name", order: "asc" });
+const sortOptionPlayer2 = ref({ type: "name", order: "asc" });
 
-    const filteredHeroesPlayer1 = computed(() =>
-      filteredHeroes(searchQueryPlayer1, sortOptionPlayer1)
-    );
-    const filteredHeroesPlayer2 = computed(() =>
-      filteredHeroes(searchQueryPlayer2, sortOptionPlayer2)
-    );
+// ✅ Calcul du score d'un héros
+const calculateHeroScore = (hero) => {
+  return (
+    (parseInt(hero.powerstats.strength) || 0) +
+    (parseInt(hero.powerstats.speed) || 0) +
+    (parseInt(hero.powerstats.durability) || 0) +
+    (parseInt(hero.powerstats.intelligence) || 0) +
+    (parseInt(hero.powerstats.combat) || 0) +
+    (parseInt(hero.powerstats.power) || 0)
+  );
+};
 
-    const sortFunction = (a, b, option) => {
-      const calculateHeroScore = (hero) => {
-        return (
-          (parseInt(hero.powerstats.strength) || 0) +
-          (parseInt(hero.powerstats.speed) || 0) +
-          (parseInt(hero.powerstats.durability) || 0) +
-          (parseInt(hero.powerstats.intelligence) || 0) +
-          (parseInt(hero.powerstats.combat) || 0) +
-          (parseInt(hero.powerstats.power) || 0)
-        );
-      };
+// ✅ Fonction de tri
+const sortFunction = (a, b, option) => {
+  if (option.type === "name") {
+    return option.order === "asc"
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
+  } else if (option.type === "score") {
+    return option.order === "asc"
+      ? calculateHeroScore(a) - calculateHeroScore(b)
+      : calculateHeroScore(b) - calculateHeroScore(a);
+  }
+  return 0;
+};
 
-      if (option.type === "name") {
-        return option.order === "asc"
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      } else if (option.type === "score") {
-        return option.order === "asc"
-          ? calculateHeroScore(a) - calculateHeroScore(b)
-          : calculateHeroScore(b) - calculateHeroScore(a);
-      }
-      return 0;
-    };
+// ✅ Filtrage des héros en fonction de la recherche et du tri
+const filteredHeroes = (query, sortOption) => {
+  return [...heroes.value]
+    .filter((hero) =>
+      hero.name.toLowerCase().includes(query.value.toLowerCase())
+    )
+    .sort((a, b) => sortFunction(a, b, sortOption.value));
+};
 
-    const sortHeroes = (type, order, player) => {
-      if (player === "player1") {
-        sortOptionPlayer1.value = { type, order };
-      } else {
-        sortOptionPlayer2.value = { type, order };
-      }
-    };
+const filteredHeroesPlayer1 = computed(() =>
+  filteredHeroes(searchQueryPlayer1, sortOptionPlayer1)
+);
+const filteredHeroesPlayer2 = computed(() =>
+  filteredHeroes(searchQueryPlayer2, sortOptionPlayer2)
+);
 
-    const startFight = () => {
-      if (selectedPlayer1.value && selectedPlayer2.value) {
-        battleStarted.value = true;
-      } else {
-        console.warn("Impossible de démarrer le combat, sélectionnez deux héros !");
-      }
-    };
+// ✅ Met à jour les options de tri
+const sortHeroes = (type, order, player) => {
+  if (player === "player1") {
+    sortOptionPlayer1.value = { type, order };
+  } else {
+    sortOptionPlayer2.value = { type, order };
+  }
+};
 
-    onMounted(() => {
+// ✅ Fonction pour démarrer un combat
+const startFight = () => {
+  if (selectedPlayer1.value && selectedPlayer2.value) {
+    battleStarted.value = true;
+  } else {
+    console.warn("❌ Impossible de démarrer le combat, sélectionnez deux héros !");
+  }
+};
+
+// ✅ Charge les héros si nécessaire au montage du composant
+onMounted(() => {
   if (heroStore.heroes.length === 0) {
-    console.log('📡 Chargement des héros...');
+    console.log("📡 Chargement des héros...");
     heroStore.fetchHeroes();
   } else {
-    console.log('✅ Héros déjà chargés, pas de nouvel appel API');
+    console.log("✅ Héros déjà chargés, pas de nouvel appel API");
   }
-    });
-
-    return {
-      heroes,
-      hoveredHero,
-      selectedPlayer1,
-      selectedPlayer2,
-      canFight,
-      startFight,
-      battleStarted,
-      searchQueryPlayer1,
-      searchQueryPlayer2,
-      filteredHeroesPlayer1,
-      filteredHeroesPlayer2,
-      showFilterMenuPlayer1,
-      showFilterMenuPlayer2,
-      toggleFilterMenu,
-      sortHeroes,
-    };
-  },
-};
+});
 </script>
+
 
 
 
