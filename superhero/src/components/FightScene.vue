@@ -236,6 +236,12 @@
       // Animation dynamique de la fight-bar
       animateFightBar() {
         let counter = 0;
+        if(this.winnerColor=='red'){
+          this.fightBarColor = "blue";
+        }
+        else{
+          this.fightBarColor = "red";
+        }
         this.isFinalizing = false;
         this.indicatorWidth = "50%";
         this.fightBarTimeouts = []; // Réinitialise les timeouts de barre de combat stockés
